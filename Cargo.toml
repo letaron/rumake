@@ -1,5 +1,5 @@
 [package]
-name = "rustake"
+name = "rumake"
 version = "0.1.0"
 authors = ["tom <t.vitureau@purjus.fr>"]
 edition = "2018"

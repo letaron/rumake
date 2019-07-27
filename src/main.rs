@@ -10,6 +10,7 @@ use std::env;
 pub struct Task {
     name: String,
     commands: Vec<String>,
+    pass_args: bool,
 }
 
 #[derive(Debug)]
@@ -22,10 +23,9 @@ fn main() {
     let doc = parser::get_doc();
     let iter = doc.iter();
 
-    let args = get_calls_args();
-    if args.len() == 0 {
-        panic!("You must provide an task name!");
-    }
+    let args: Vec<String> = env::args().collect();
+    let task_name = get_task_name(&args);
+    let calls_args = get_calls_args(&args);
 
     let mut tasks: HashMap<String, Task> = HashMap::new();
     let mut variables: HashMap<String, Variable> = HashMap::new();
@@ -45,29 +45,52 @@ fn main() {
                 );
             }
             _ => {
-                let mut commands: Vec<String> = Vec::new();
+                let mut commands: Vec<String>;
+                let pass_args: bool;
 
-                for line in value.as_vec().unwrap() {
-                    commands.push(parser::yaml_element_as_string(line));
+                if value.as_str().is_some() {
+                    commands = vec![value.clone().into_string().unwrap()];
+                    pass_args = true;
+                } else if value.as_vec().is_some() {
+                    commands = Vec::new();
+                    for line in value.as_vec().unwrap() {
+                        commands.push(parser::yaml_element_as_string(line));
+                    }
+                    pass_args = false;
+                } else {
+                    panic!(format!(
+                        "Task '{}' must be string or array of string.",
+                        name
+                    ))
                 }
 
-                tasks.insert(name.clone(), Task { name, commands });
+                tasks.insert(
+                    name.clone(),
+                    Task {
+                        name,
+                        commands,
+                        pass_args,
+                    },
+                );
             }
         }
     }
 
-    let task_name = &args[0];
-    exec_task(&tasks, task_name, Vec::new());
+    exec_task(&tasks, task_name, Vec::new(), &calls_args);
 
     // println!("{:?}", tasks);
     // println!("{:?}", variables);
 }
 
-// todo seggregate rustake args from task args (ie. [rustake args] -- [task args])
-fn get_calls_args() -> Vec<String> {
-    let mut args: Vec<String> = env::args().collect();
-    args.remove(0);
-    println!("command args: {:?}", args);
+fn get_task_name(args: &Vec<String>) -> &String {
+    if args.len() < 2 {
+        panic!("You must provide an task name!");
+    }
 
-    args
+    &args[1]
+}
+
+// todo seggregate rustake args from task args (ie. [rustake args] -- [task args])
+fn get_calls_args(args: &Vec<String>) -> Vec<String> {
+    args.clone().split_off(2)
 }

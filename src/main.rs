@@ -84,12 +84,8 @@ fn main() {
     }
 
     let resolved_vars = variables::resolve(&variables);
-    println!("\n\n\n{:?}", resolved_vars);
 
     exec_task(&tasks, task_name, &calls_args, Vec::new(), &resolved_vars);
-
-    // println!("{:?}", tasks);
-    // println!("{:?}", variables);
 }
 
 fn get_task_name(args: &Vec<String>) -> &String {

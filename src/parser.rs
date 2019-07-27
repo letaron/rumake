@@ -4,12 +4,9 @@ use std::io::Read;
 use yaml_rust::{Yaml, YamlLoader};
 
 pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
-
-    let mut f =
-        File::open("rumake.yaml").expect("Error while opening rumake.yaml");
+    let mut f = File::open("rumake.yaml").expect("Error while opening rumake.yaml");
     let mut s = String::new();
-    f.read_to_string(&mut s)
-        .expect("Cannot read rumake.yaml");
+    f.read_to_string(&mut s).expect("Cannot read rumake.yaml");
 
     let docs = YamlLoader::load_from_str(&s).expect("Cannot parse rumake.yaml");
     let doc = docs[0].clone().into_hash().unwrap();

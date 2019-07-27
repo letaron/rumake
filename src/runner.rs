@@ -1,5 +1,5 @@
 use crate::Task;
-use log::{debug, info};
+use log::debug;
 use std::collections::HashMap;
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
@@ -11,7 +11,7 @@ pub fn exec_task(
     command_call_stack: Vec<&String>,
     variables: &HashMap<String, String>,
 ) {
-    println!("run {}", task_name);
+    debug!("run {}", task_name);
 
     let task = tasks
         .get(task_name)
@@ -31,7 +31,7 @@ pub fn exec_task(
             new_command_call_stack.push(&task_name);
 
             let referenced_task_name = command.clone().split_off(1);
-            println!("sub-run {}", referenced_task_name);
+            debug!("  -> run {}", referenced_task_name);
             exec_task(
                 tasks,
                 &referenced_task_name,
@@ -50,11 +50,11 @@ fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<St
     let mut process_command = Command::new("sh");
     let mut real_command = command.clone();
 
-    info!("original command {}", real_command);
+    debug!("  original: {}", real_command);
     for (name, value) in variables {
         real_command = real_command.replace(name, value);
     }
-    info!("cleaned command {}", real_command);
+    debug!("  replaced: {}", real_command);
 
     for call_arg in call_args {
         real_command = format!("{} {}", real_command, call_arg);
@@ -63,7 +63,7 @@ fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<St
         .args(vec!["-e", "-u", "-c"])
         .arg(real_command);
 
-    println!("{:?}", process_command);
+    info!("{:?}", process_command);
 
     let output = process_command
         .stdin(Stdio::inherit())

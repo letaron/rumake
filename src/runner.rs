@@ -1,13 +1,15 @@
 use crate::Task;
+use log::{debug, info};
 use std::collections::HashMap;
 use std::io::{self, Write};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 pub fn exec_task(
     tasks: &HashMap<String, Task>,
     task_name: &String,
     call_args: &Vec<String>,
     command_call_stack: Vec<&String>,
+    variables: &HashMap<String, String>,
 ) {
     println!("run {}", task_name);
 
@@ -35,19 +37,27 @@ pub fn exec_task(
                 &referenced_task_name,
                 &call_args,
                 new_command_call_stack,
+                variables,
             );
             continue;
         }
 
-        runc_command(command, &call_args);
+        run_command(command, &call_args, variables);
     }
 }
 
-fn runc_command(command: &String, call_args: &Vec<String>) {
+fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<String, String>) {
     let mut process_command = Command::new("sh");
     let mut real_command = command.clone();
+
+    info!("original command {}", real_command);
+    for (name, value) in variables {
+        real_command = real_command.replace(name, value);
+    }
+    info!("cleaned command {}", real_command);
+
     for call_arg in call_args {
-        real_command = format!("{} {}", command, call_arg);
+        real_command = format!("{} {}", real_command, call_arg);
     }
     process_command
         .args(vec!["-e", "-u", "-c"])
@@ -56,11 +66,11 @@ fn runc_command(command: &String, call_args: &Vec<String>) {
     println!("{:?}", process_command);
 
     let output = process_command
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .output()
         .expect(&format!("Command '{}' failed.", command));
-
-    io::stdout().write_all(&output.stdout).unwrap();
-    io::stderr().write_all(&output.stderr).unwrap();
 
     if !output.status.success() {
         match output.status.code() {

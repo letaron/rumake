@@ -19,9 +19,11 @@ second_task:
   - echo 3 "tutu & titi"
   - echo 4 "toto"
 
-ps: ps
+ps: ps $ps_args
 
 cargo: cargo
+
+$ps_args: a
 
 $int: 42
 $float: 13.37

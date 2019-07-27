@@ -4,16 +4,19 @@
 # command can refert to another command by prefixing it's name with "@"
 
 my_first_task:
-  - echo 1 "toto"
+  - echo 1 $USER
   - echo 2 "tata"
+  - for file in $(ls); do
+      echo $file;
+    done
+  
 
 my_second_task:
   - "@my_first_task"
   - echo 3 "tutu & titi"
-  - echo 4 "tata"
-  - ls
+  - echo 4 "toto"
 
 $param_int: 42
 $param_float: 13.37
 $param_string: "bar"
-$param_referencing: "$param_int foo $param_float"
+$param_referencing: $param_int foo $param_float

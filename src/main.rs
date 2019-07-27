@@ -31,7 +31,7 @@ fn main() {
     let doc = docs[0].as_hash().unwrap();
     let iter = doc.iter();
 
-    let args = get_args();
+    let args = get_calls_args();
     if args.len() == 0 {
         panic!("You must provide an task name!");
     }
@@ -47,49 +47,58 @@ fn main() {
             '$' => {
                 variables.insert(
                     name.clone(),
-                    create_variable(name.clone(), as_string(value)),
+                    Variable {
+                        name,
+                        expression: yaml_element_as_string(value),
+                    },
                 );
             }
             _ => {
                 let mut commands: Vec<String> = Vec::new();
 
                 for line in value.as_vec().unwrap() {
-                    commands.push(as_string(line));
+                    commands.push(yaml_element_as_string(line));
                 }
 
-                tasks.insert(name.clone(), create_task(name.clone(), commands));
+                tasks.insert(name.clone(), Task { name, commands });
             }
         }
     }
 
-    exec_task(
-        tasks
-            .get(&args[0])
-            .expect(&format!("Task {} unknown.", &args[0])),
-    );
+    let task_name = &args[0];
+    exec_task(&tasks, task_name, Vec::new());
 
     // println!("{:?}", tasks);
     // println!("{:?}", variables);
 }
 
-fn exec_task(task: &Task) {
-    let mut dependencies: Vec<&String> = Vec::new();
-    let name = &task.name;
-    dependencies.push(name);
+fn exec_task(tasks: &HashMap<String, Task>, task_name: &String, dependencies: Vec<&String>) {
+    let task = tasks
+        .get(task_name)
+        .expect(&format!("Task {} unknown.", task_name));
+
+    if dependencies.contains(&task_name) {
+        panic!(format!(
+            "Recursivity problem: '{}' get called again.",
+            task_name
+        ));
+    }
 
     for command in &task.commands {
+        // if command references another task, execute it
         if command.chars().next().unwrap() == '@' {
-            println!(
-                "todo: call taks {} with dependencies {:?}",
-                command, dependencies
-            );
+            let mut new_dependencies = dependencies.clone();
+            new_dependencies.push(&task_name);
+
+            let referenced_task_name = command.clone().split_off(1);
+            exec_task(tasks, &referenced_task_name, new_dependencies);
             continue;
         }
 
         let mut process_command = build_process_command(command);
         process_command
             .spawn()
-            .expect(&format!("Command {} failed.", name));
+            .expect(&format!("Command {} failed.", task_name));
     }
 }
 
@@ -108,15 +117,7 @@ fn build_process_command(command: &String) -> Command {
     command
 }
 
-fn create_task(name: String, commands: Vec<String>) -> Task {
-    Task { name, commands }
-}
-
-fn create_variable(name: String, expression: String) -> Variable {
-    Variable { name, expression }
-}
-
-fn as_string(value: &Yaml) -> String {
+fn yaml_element_as_string(value: &Yaml) -> String {
     let expression: String;
     if value.as_str().is_some() {
         expression = value.clone().into_string().unwrap();
@@ -134,7 +135,7 @@ fn as_string(value: &Yaml) -> String {
 }
 
 // todo seggregate rustake args from task args (ie. [rustake args] -- [task args])
-fn get_args() -> Vec<String> {
+fn get_calls_args() -> Vec<String> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
     println!("command args: {:?}", args);

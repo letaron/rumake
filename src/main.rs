@@ -1,8 +1,11 @@
+extern crate shellwords;
 extern crate yaml_rust;
+use shellwords::split;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::Read;
+use std::process::Command;
 use yaml_rust::{Yaml, YamlLoader};
 
 #[derive(Debug)]
@@ -65,11 +68,45 @@ fn main() {
             .expect(&format!("Task {} unknown.", &args[0])),
     );
 
-    println!("{:?}", tasks);
-    println!("{:?}", variables);
+    // println!("{:?}", tasks);
+    // println!("{:?}", variables);
 }
 
-fn exec_task(task: &Task) {}
+fn exec_task(task: &Task) {
+    let mut dependencies: Vec<&String> = Vec::new();
+    let name = &task.name;
+    dependencies.push(name);
+
+    for command in &task.commands {
+        if command.chars().next().unwrap() == '@' {
+            println!(
+                "todo: call taks {} with dependencies {:?}",
+                command, dependencies
+            );
+            continue;
+        }
+
+        let mut process_command = build_process_command(command);
+        process_command
+            .spawn()
+            .expect(&format!("Command {} failed.", name));
+    }
+}
+
+fn build_process_command(command: &String) -> Command {
+    let parts = split(command).unwrap();
+    let mut command = Command::new(&parts[0]);
+
+    let mut i = 1;
+    let len = parts.len();
+
+    while i < len {
+        command.arg(&parts[i]);
+        i += 1;
+    }
+
+    command
+}
 
 fn create_task(name: String, commands: Vec<String>) -> Task {
     Task { name, commands }

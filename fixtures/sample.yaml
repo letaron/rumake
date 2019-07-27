@@ -9,8 +9,9 @@ my_first_task:
 
 my_second_task:
   - "@my_first_task"
-  - echo "toto"
+  - echo "tutu & titi"
   - echo "tata"
+  - ls
 
 $param_int: 42
 $param_float: 13.37

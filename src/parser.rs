@@ -17,18 +17,18 @@ pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
 }
 
 pub fn yaml_element_as_string(value: &Yaml) -> String {
-    let expression: String;
+    let string: String;
     if value.as_str().is_some() {
-        expression = value.clone().into_string().unwrap();
+        string = value.clone().into_string().unwrap();
     } else if value.as_i64().is_some() {
-        expression = value.clone().into_i64().unwrap().to_string();
+        string = value.clone().into_i64().unwrap().to_string();
     } else if value.as_f64().is_some() {
-        expression = value.clone().into_f64().unwrap().to_string();
+        string = value.clone().into_f64().unwrap().to_string();
     } else if value.as_bool().is_some() {
-        expression = value.clone().into_bool().unwrap().to_string();
+        string = value.clone().into_bool().unwrap().to_string();
     } else {
         unimplemented!();
     }
 
-    expression
+    string
 }

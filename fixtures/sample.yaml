@@ -6,7 +6,6 @@
 # - In case of command is a string, CLI args are passed
 # - Command can reference another command by prefixing it's name with "@"
 
-
 first_task:
   - echo 1 $USER
   - echo 2 "tata"

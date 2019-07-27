@@ -21,20 +21,19 @@ second_task:
 
 ps: ps
 
+cargo: cargo
+
 $int: 42
 $float: 13.37
 $string: "bar"
 $bool: true
-$referencing: $int foo $float
-# $int: 42
-# $float: 13.37
-# $string: "bar"
-# $bool: true
-# # $self_referencing: "baz $self_referencing"
-# $referencing: ${int} ** $float
-# # $referencing2: ${int} ** $float
-# # $unknown_referencing: ${string}foo $USER
+$ref: $int foo $float
+$ref_env: $string $USER
+# $self: $USER $self
+$ref: foo${string}baz $float
+$unknown_referencing: 123 $USER 321
 
 $var1: aa $var2
-$var2: bb
-$var3: $var1
+$var2: bb $var3
+$var3: cc $var4
+$var4: cc $USER

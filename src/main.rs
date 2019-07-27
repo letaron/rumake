@@ -77,13 +77,10 @@ fn main() {
         }
     }
 
-    // exec_task(&tasks, task_name, Vec::new(), &calls_args);
+    exec_task(&tasks, task_name, &calls_args, Vec::new());
 
     let resolved_vars = variables::resolve(&variables);
     println!("\n\n\n{:?}", resolved_vars);
-
-    // let task_name = &args[0];
-    // exec_task(&tasks, task_name, Vec::new());
 
     // println!("{:?}", tasks);
     // println!("{:?}", variables);

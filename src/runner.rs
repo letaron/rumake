@@ -6,8 +6,8 @@ use std::process::Command;
 pub fn exec_task(
     tasks: &HashMap<String, Task>,
     task_name: &String,
-    dependencies: Vec<&String>,
     call_args: &Vec<String>,
+    command_call_stack: Vec<&String>,
 ) {
     println!("run {}", task_name);
 
@@ -15,7 +15,7 @@ pub fn exec_task(
         .get(task_name)
         .expect(&format!("Task '{}' unknown.", task_name));
 
-    if dependencies.contains(&task_name) {
+    if command_call_stack.contains(&task_name) {
         panic!(format!(
             "Recursivity problem: '{}' get called again.",
             task_name
@@ -25,12 +25,17 @@ pub fn exec_task(
     for command in &task.commands {
         // if command references another task, execute it
         if command.chars().next().unwrap() == '@' {
-            let mut new_dependencies = dependencies.clone();
-            new_dependencies.push(&task_name);
+            let mut new_command_call_stack = command_call_stack.clone();
+            new_command_call_stack.push(&task_name);
 
             let referenced_task_name = command.clone().split_off(1);
             println!("sub-run {}", referenced_task_name);
-            exec_task(tasks, &referenced_task_name, new_dependencies, &call_args);
+            exec_task(
+                tasks,
+                &referenced_task_name,
+                &call_args,
+                new_command_call_stack,
+            );
             continue;
         }
 

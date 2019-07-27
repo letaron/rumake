@@ -1,0 +1,8 @@
+[package]
+name = "rustake"
+version = "0.1.0"
+authors = ["tom <t.vitureau@purjus.fr>"]
+edition = "2018"
+
+[dependencies]
+yaml-rust = "0.4"

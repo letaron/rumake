@@ -1,0 +1,18 @@
+# there is commands & variables
+# variables name starts with "$", everything else is commands
+# variable can refer other variable with their name
+# command can refert to another command by prefixing it's name with "@"
+
+my_first_task:
+  - echo "toto"
+  - echo "tata"
+
+my_second_task:
+  - "@my_first_task"
+  - echo "toto"
+  - echo "tata"
+
+$param_int: 42
+$param_float: 13.37
+$param_string: "bar"
+$param_referencing: "$param_int foo $param_float"

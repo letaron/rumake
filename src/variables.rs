@@ -24,24 +24,23 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
     let re = Regex::new(r"(?:\$(?:\{\w+\}|\w+))").unwrap();
 
     for (name, variable) in variables {
-        let processed_variable = variable.clone();
-
-        debug!("reference check: {}: {:?}", name, variable);
+        debug!("reference check: {} - {:?}", name, variable);
 
         if !re.is_match(&variable.value) {
-            debug!("  no reference in {}", name);
-            // parsed.insert(name.clone(), processed_variable);
-            debug!("\n\n");
+            debug!("  no reference in {}\n", name);
             continue;
         }
 
         for capture in re.captures_iter(&variable.value) {
-            let found = String::from(capture.get(0).unwrap().as_str());
+            let found = String::from(capture.get(0).unwrap().as_str())
+                .replace('{', "")
+                .replace('}', "");
             if !variables.contains_key(&found) {
                 debug!("  unknow reference {}", found);
                 continue;
             }
 
+            debug!("  add {}", found);
             if !references.contains_key(name) {
                 let mut refrenceds = Vec::new();
                 refrenceds.push(found);
@@ -52,7 +51,7 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
             }
         }
 
-        debug!("\n\n");
+        debug!("\n");
     }
 
     references

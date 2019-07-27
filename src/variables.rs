@@ -2,7 +2,7 @@ extern crate log;
 extern crate regex;
 
 use crate::Variable;
-use log::{debug, info, warn};
+use log::debug;
 use regex::{Match, Regex};
 use std::collections::HashMap;
 use std::str;

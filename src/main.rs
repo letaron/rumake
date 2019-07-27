@@ -1,4 +1,8 @@
+extern crate pretty_env_logger;
 extern crate yaml_rust;
+#[macro_use]
+extern crate log;
+
 mod parser;
 mod runner;
 mod variables;
@@ -21,6 +25,8 @@ pub struct Variable {
 }
 
 fn main() {
+    pretty_env_logger::init();
+
     let doc = parser::get_doc();
     let iter = doc.iter();
 

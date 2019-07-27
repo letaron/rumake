@@ -4,13 +4,13 @@
 # command can refert to another command by prefixing it's name with "@"
 
 my_first_task:
-  - echo "toto"
-  - echo "tata"
+  - echo 1 "toto"
+  - echo 2 "tata"
 
 my_second_task:
   - "@my_first_task"
-  - echo "tutu & titi"
-  - echo "tata"
+  - echo 3 "tutu & titi"
+  - echo 4 "tata"
   - ls
 
 $param_int: 42

@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 yaml-rust = "0.4"
+linked-hash-map = "0.5"

@@ -1,6 +1,7 @@
 extern crate yaml_rust;
 mod parser;
 mod runner;
+mod variables;
 
 use runner::exec_task;
 use std::collections::HashMap;
@@ -13,10 +14,10 @@ pub struct Task {
     pass_args: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Variable {
     name: String,
-    expression: String,
+    value: String,
 }
 
 fn main() {
@@ -40,7 +41,7 @@ fn main() {
                     name.clone(),
                     Variable {
                         name,
-                        expression: parser::yaml_element_as_string(value),
+                        value: parser::yaml_element_as_string(value),
                     },
                 );
             }
@@ -76,7 +77,13 @@ fn main() {
         }
     }
 
-    exec_task(&tasks, task_name, Vec::new(), &calls_args);
+    // exec_task(&tasks, task_name, Vec::new(), &calls_args);
+
+    let resolved_vars = variables::resolve(&variables);
+    println!("{:?}", resolved_vars);
+
+    // let task_name = &args[0];
+    // exec_task(&tasks, task_name, Vec::new());
 
     // println!("{:?}", tasks);
     // println!("{:?}", variables);

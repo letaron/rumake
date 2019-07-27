@@ -75,7 +75,7 @@ fn main() {
 fn exec_task(tasks: &HashMap<String, Task>, task_name: &String, dependencies: Vec<&String>) {
     let task = tasks
         .get(task_name)
-        .expect(&format!("Task {} unknown.", task_name));
+        .expect(&format!("Task '{}' unknown.", task_name));
 
     if dependencies.contains(&task_name) {
         panic!(format!(
@@ -98,22 +98,15 @@ fn exec_task(tasks: &HashMap<String, Task>, task_name: &String, dependencies: Ve
         let mut process_command = build_process_command(command);
         process_command
             .spawn()
-            .expect(&format!("Command {} failed.", task_name));
+            .expect(&format!("Command '{}' failed.", task_name));
     }
 }
 
 fn build_process_command(command: &String) -> Command {
-    let parts = split(command).unwrap();
-    let mut command = Command::new(&parts[0]);
+    let mut parts = split(command).unwrap();
+    let mut command = Command::new(parts.remove(0));
 
-    let mut i = 1;
-    let len = parts.len();
-
-    while i < len {
-        command.arg(&parts[i]);
-        i += 1;
-    }
-
+    command.args(parts);
     command
 }
 

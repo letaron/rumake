@@ -1,9 +1,13 @@
-# there is commands & variables
-# variables name starts with "$", everything else is commands
-# variable can refer other variable with their name
-# command can refert to another command by prefixing it's name with "@"
+# there is 2 types on element: commands & variables.
+#
+# - Variables name starts with "$", everything else is commands
+# - Variable can reference other variable with their name
+# - Command is either an array of string or a string
+# - In case of command is a string, CLI args are passed
+# - Command can reference another command by prefixing it's name with "@"
 
-my_first_task:
+
+first_task:
   - echo 1 $USER
   - echo 2 "tata"
   - for file in $(ls); do
@@ -11,12 +15,15 @@ my_first_task:
     done
   
 
-my_second_task:
-  - "@my_first_task"
+second_task:
+  - "@first_task"
   - echo 3 "tutu & titi"
   - echo 4 "toto"
 
-$param_int: 42
-$param_float: 13.37
-$param_string: "bar"
-$param_referencing: $param_int foo $param_float
+ps: ps
+
+$int: 42
+$float: 13.37
+$string: "bar"
+$bool: true
+$referencing: $int foo $float

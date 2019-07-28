@@ -6,6 +6,9 @@
 # - In case of task is only a string, CLI args are passed
 # - A task can reference another task by prefixing it's name with "@"
 
+
+cargo: cargo
+
 first_task:
   - echo 1 $USER
   - echo 2 "tata"
@@ -13,16 +16,12 @@ first_task:
       echo $file;
     done
   
-
 second_task:
   - "@first_task"
-  - echo 3 "tutu & titi"
+  - echo 3 "tutu & titi" $RUMAKE_ARG$
   - echo 4 "toto"
 
 ps: ps $ps_args
-
-cargo: cargo
-
 $ps_args: a
 
 $int: 42
@@ -32,8 +31,6 @@ $bool: true
 $ref: $int foo $float
 $ref_env: $string $USER
 # $self: $USER $self
-$ref: foo${string}baz $float
-$unknown_referencing: 123 $USER 321
 
 $var1: aa $var2
 $var2: bb $var3

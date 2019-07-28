@@ -20,13 +20,13 @@ pub fn exec_task(
         panic!("Recursivity problem: '{}' get called again.", task_name);
     }
 
-    for command in &task.instructions {
+    for instruction in &task.instructions {
         // if command references another task, execute it
-        if command.chars().next().unwrap() == '@' {
+        if instruction.chars().next().unwrap() == '@' {
             let mut new_command_call_stack = command_call_stack.clone();
             new_command_call_stack.push(&task_name);
 
-            let referenced_task_name = command.to_string().split_off(1);
+            let referenced_task_name = instruction.to_string().split_off(1);
             debug!("  -> run {}", referenced_task_name);
             exec_task(
                 tasks,
@@ -38,40 +38,57 @@ pub fn exec_task(
             continue;
         }
 
-        run_command(command, &call_args, variables);
+        run_instruction(task, instruction, &call_args, variables);
     }
 }
 
-fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<String, String>) {
-    let mut process_command = Command::new("sh");
-    let mut real_command = command.to_string();
+fn run_instruction(
+    task: &Task,
+    instruction: &String,
+    call_args: &Vec<String>,
+    variables: &HashMap<String, String>,
+) {
+    let mut command = Command::new("sh");
+    let instruction = expand_instruction(task, instruction, call_args, variables);
 
-    debug!("  original: {}", real_command);
-    for (name, value) in variables {
-        real_command = real_command.replace(name, value);
-    }
-    debug!("  replaced: {}", real_command);
+    command.args(vec!["-e", "-u", "-c"]).arg(&instruction);
 
-    for call_arg in call_args {
-        real_command = format!("{} {}", real_command, call_arg);
-    }
-    process_command
-        .args(vec!["-e", "-u", "-c"])
-        .arg(real_command);
+    info!("{:?}", command);
 
-    info!("{:?}", process_command);
-
-    let output = process_command
+    let output = command
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .output()
-        .expect(&format!("Command '{}' failed.", command));
+        .expect(&format!("Command '{}' failed.", instruction));
 
     if !output.status.success() {
         match output.status.code() {
-            Some(code) => panic!("Command '{}' failed with code {}.", command, code),
-            None => panic!("Command '{}' terminated by signal", command),
+            Some(code) => panic!("Command '{}' failed with code {}.", instruction, code),
+            None => panic!("Command '{}' terminated by signal", instruction),
         }
     }
+}
+
+fn expand_instruction(
+    task: &Task,
+    instruction: &String,
+    call_args: &Vec<String>,
+    variables: &HashMap<String, String>,
+) -> String {
+    let mut instruction = instruction.to_string();
+
+    debug!("  original: {}", instruction);
+    for (name, value) in variables {
+        instruction = instruction.replace(name, value);
+    }
+    debug!("  replaced: {}", instruction);
+
+    if task.instructions.len() == 1 {
+        for call_arg in call_args {
+            instruction = format!("{} {}", instruction, call_arg);
+        }
+    }
+
+    instruction
 }

@@ -1,4 +1,4 @@
-# there is 2 types on element: commands & variables.
+# there is 2 types of element: commands & variables.
 #
 # - Variables name starts with "$", everything else is commands
 # - Variable can reference other variable with their name

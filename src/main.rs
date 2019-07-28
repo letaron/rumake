@@ -1,8 +1,3 @@
-extern crate pretty_env_logger;
-extern crate yaml_rust;
-#[macro_use]
-extern crate log;
-
 mod parser;
 mod runner;
 mod variables;
@@ -14,7 +9,7 @@ use std::env;
 #[derive(Debug)]
 pub struct Task {
     name: String,
-    commands: Vec<String>,
+    instructions: Vec<String>,
     pass_args: bool,
 }
 
@@ -44,7 +39,7 @@ fn main() {
         match first_letter {
             '$' => {
                 variables.insert(
-                    name.clone(),
+                    name.to_string(),
                     Variable {
                         name,
                         value: parser::yaml_element_as_string(value),
@@ -52,16 +47,16 @@ fn main() {
                 );
             }
             _ => {
-                let mut commands: Vec<String>;
+                let mut instructions: Vec<String>;
                 let pass_args: bool;
 
                 if value.as_str().is_some() {
-                    commands = vec![value.clone().into_string().unwrap()];
+                    instructions = vec![value.clone().into_string().unwrap()];
                     pass_args = true;
                 } else if value.as_vec().is_some() {
-                    commands = Vec::new();
+                    instructions = Vec::new();
                     for line in value.as_vec().unwrap() {
-                        commands.push(parser::yaml_element_as_string(line));
+                        instructions.push(parser::yaml_element_as_string(line));
                     }
                     pass_args = false;
                 } else {
@@ -69,10 +64,10 @@ fn main() {
                 }
 
                 tasks.insert(
-                    name.clone(),
+                    name.to_string(),
                     Task {
                         name,
-                        commands,
+                        instructions,
                         pass_args,
                     },
                 );

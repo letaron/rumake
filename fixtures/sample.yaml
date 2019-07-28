@@ -1,10 +1,10 @@
-# there is 2 types of element: commands & variables.
+# there is 2 types of element: task & variables.
 #
-# - Variables name starts with "$", everything else is commands
+# - Variables name starts with "$", everything else is task
 # - Variable can reference other variable with their name
-# - Command is either an array of string or a string
-# - In case of command is a string, CLI args are passed
-# - Command can reference another command by prefixing it's name with "@"
+# - Task contains either an array of string or a string (the instruction)
+# - In case of task is only a string, CLI args are passed
+# - A task can reference another task by prefixing it's name with "@"
 
 first_task:
   - echo 1 $USER

@@ -18,10 +18,10 @@ pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
     }
 
     if config.is_none() {
-        panic!(format!(
+        panic!(
             "No config file found in working directory. Looked for {}.",
             configs.join(", ")
-        ));
+        );
     }
 
     let filename = config.unwrap();

@@ -1,7 +1,6 @@
 use crate::Task;
-use log::debug;
+use log::{debug, info};
 use std::collections::HashMap;
-use std::io::{self, Write};
 use std::process::{Command, Stdio};
 
 pub fn exec_task(
@@ -21,13 +20,13 @@ pub fn exec_task(
         panic!("Recursivity problem: '{}' get called again.", task_name);
     }
 
-    for command in &task.commands {
+    for command in &task.instructions {
         // if command references another task, execute it
         if command.chars().next().unwrap() == '@' {
             let mut new_command_call_stack = command_call_stack.clone();
             new_command_call_stack.push(&task_name);
 
-            let referenced_task_name = command.clone().split_off(1);
+            let referenced_task_name = command.to_string().split_off(1);
             debug!("  -> run {}", referenced_task_name);
             exec_task(
                 tasks,
@@ -45,7 +44,7 @@ pub fn exec_task(
 
 fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<String, String>) {
     let mut process_command = Command::new("sh");
-    let mut real_command = command.clone();
+    let mut real_command = command.to_string();
 
     debug!("  original: {}", real_command);
     for (name, value) in variables {

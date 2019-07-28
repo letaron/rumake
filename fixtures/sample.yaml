@@ -1,39 +1,36 @@
-# there is 2 types of element: task & variables.
-#
-# - Variables name starts with "$", everything else is task
-# - Variable can reference other variable with their name
-# - Task contains either an array of string or a string (the instruction)
-# - In case of task is only a string, CLI args are passed
-# - A task can reference another task by prefixing it's name with "@"
+ls: ls $RUMAKE_ARGS $ls_args
 
+$ls_args: --color=$ls_args2
+$ls_args2: tty
 
-cargo: cargo
+ps: ps a
 
-first_task:
-  - echo 1 $USER
-  - echo 2 "tata"
-  - for file in $(ls); do
-      echo $file;
-    done
-  
-second_task:
-  - "@first_task"
-  - echo 3 "tutu & titi" $RUMAKE_ARG$
-  - echo 4 "toto"
+cargo: cargo $RUMAKE_ARGS
 
-ps: ps $ps_args
-$ps_args: a
+task2:
+  - "@task1"
+  - echo 3 "tata"
 
-$int: 42
-$float: 13.37
-$string: "bar"
-$bool: true
-$ref: $int foo $float
-$ref_env: $string $USER
-# $self: $USER $self
+task1:
+  - echo 1 "tutu \& titi"
+  - echo 2 "toto"
 
-$var1: aa $var2
-$var2: bb $var3
-$var3: cc $var4
-$var4: cc $USER
+echo: echo
+echov: 
+  - echo "first $RUMAKE_ARGS"
+  - "@echo $RUMAKE_ARGS"
 
+hello: cowsay hello
+me:
+  - "@hello"
+  - echo "I\'m $USER and time is $(date)"
+
+# pizza: echo \"Let\'s go for a pizza with\"
+pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
+pizza_super: "@pizza super $RUMAKE_ARGS"
+pizza_extra:
+  - echo hmmm...
+  - echo I love $RUMAKE_ARGS
+  - "@pizza_super extra $RUMAKE_ARGS !"
+
+task: echo It\\\'s a test

@@ -52,27 +52,18 @@ rumake me
 
 You can reference a taks by `@`-name.
 
-> When referencing a task, the arguments passed to the task are the ones declared in the referencing task, not the "global" ones.
-
-With this configuration
 ```yaml
-pizza: echo \"Let\'s go for a pizza with\"
-# you can place the $RUMAKE_ARGS if needed
-# pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
-pizza_super: "@pizza super $RUMAKE_ARGS"
-pizza_extra:
-  - echo hmmm...
-  - echo I love $RUMAKE_ARGS
-  - "@pizza_super extra $RUMAKE_ARGS !"
+task1: echo "baz"
+task2:
+  - echo "foo"
+  - "@task1"
 ```
 
-You use it like this
+usage
 ```bash
-rumake pizza cheese # Let's go for a pizza with cheese
-
-rumake pizza_extra cheese
-# hmmm...
-# Let's go for a pizza with super extra cheese !
+rumake task2
+# foo
+# baz
 ```
 
 ### Passing arguments
@@ -101,17 +92,35 @@ When the task has multiple instructions, you need to place the arguments. It all
 With this configuration
 ```yaml
 shell: docker-compose run $RUMAKE_ARGS bash 
-shell_debug:
-  - echo "Current status"
-  - docker-compose ps $RUMAKE_ARGS
-  - "@shell --rm $RUMAKE_ARGS"
-
 ```
 
 will be used like that
 ```bash
 rumake dkcr shell_debug node
 ```
+
+And when referencing, it's the same principle:
+```yaml
+pizza: echo \"Let\'s go for a pizza with\"
+# you can place the $RUMAKE_ARGS if needed
+# pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
+pizza_super: "@pizza super $RUMAKE_ARGS"
+pizza_extra:
+  - echo hmmm...
+  - echo I love $RUMAKE_ARGS
+  - "@pizza_super extra $RUMAKE_ARGS !"
+```
+
+You use it like this
+```bash
+rumake pizza cheese # Let's go for a pizza with cheese
+
+rumake pizza_extra cheese
+# hmmm...
+# I love cheese
+# Let's go for a pizza with super extra cheese !
+```
+> When referencing a task, the arguments passed to the task are the ones declared in the referencing task, not the "global" ones.
 
 ## Escaping
 
@@ -128,13 +137,15 @@ task: echo \"It\'s a test\"
 
 ## Configuration
 
-Priority for lodging (no merging is done):
-1. if `rumake.yaml` exists in the working directory, it will be used.
-2. if `rumake.yaml.dist` exists in the working directory, it will be used.
-
 See a full working configuration [here](fixtures/example.yaml).
 
 There is 2 types of element: `tasks` & `variables`.
+
+### Conf file
+
+Priority for loading (no merging is done):
+1. if `rumake.yaml` exists in the working directory, it will be used.
+2. if `rumake.yaml.dist` exists in the working directory, it will be used.
 
 ### Tasks
 
@@ -153,26 +164,6 @@ task2:
       echo $file;
     done
   # ...
-```
-
-#### Reference tasks
-
-You need to write the command name prefixed with `@`
-
-```yaml
-task1: echo "foo"
-task2:
-  - "@cmd1"
-  - echo "bar"
-  - "@cmd1"
-```
-
-usage
-```bash
-rumake task2
-# foo
-# bar
-# foo
 ```
 
 ### Variables

@@ -9,13 +9,11 @@ cargo: cargo $RUMAKE_ARGS
 
 task: echo It\\\'s a test
 
-task1:
-  - echo 1 "tutu \& titi"
-  - echo 2 "toto"
-
+task1: echo "baz"
 task2:
   - "@task1"
-  - echo 3 "tata"
+  - echo "foo"
+  - "@task1 $RUMAKE_ARGS"
 
 echo: echo
 echov: 

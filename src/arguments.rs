@@ -5,11 +5,11 @@ pub fn expand_program_args(
     program_args: &Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
-    is_single_insruction_task: bool,
+    is_mono_insruction_task: bool,
 ) -> Vec<String> {
     debug!(
         "program_args: {:?}, is_single_insruction_task: {}",
-        program_args, is_single_insruction_task
+        program_args, is_mono_insruction_task
     );
 
     let mut processed_args = expand_variables_pass(&program_args, variables);
@@ -19,7 +19,7 @@ pub fn expand_program_args(
         processed_args = expand_rumake_args_pass(processed_args, call_args);
         debug!("expand_rumake_args_pass: after {:?}", processed_args);
     } else {
-        if is_single_insruction_task {
+        if is_mono_insruction_task {
             debug!("  single instruction task, forwarding: {:?}", call_args);
             &processed_args.append(&mut call_args.to_vec());
             return processed_args;

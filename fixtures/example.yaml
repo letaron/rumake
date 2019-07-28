@@ -21,10 +21,11 @@ echov:
   - "@echo $RUMAKE_ARGS"
   - "@echo after"
 
-hello: cowsay hello
+hello: cowsay hello $from !
 me:
   - "@hello"
   - echo "I\'m $USER and time is $(date)"
+$from: world
 
 # pizza: echo \"Let\'s go for a pizza with\"
 pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"

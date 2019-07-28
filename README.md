@@ -26,10 +26,11 @@ $console_args: --verbose
 
 encore: docker-compose run --rm node yarn encore
 
-hello: cowsay hello
+hello: cowsay hello $from !
 me:
   - "@hello"
   - echo "I\'m $USER and time is $(date)"
+$from: world
 ```
 
 You can use it like this:
@@ -40,7 +41,7 @@ rumake console lint:twig # will run with --verbose flag
 rumake encore dev --hot
 
 rumake me
-# ...
+# hello world !
 # I'm ... and time is ...
 ```
 

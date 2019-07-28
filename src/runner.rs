@@ -40,9 +40,7 @@ pub fn exec_task(
 
             debug!("  -> run dependency {} with {:?}", program, program_args);
             let program_args = expand_program_args(&program_args, call_args, variables, false);
-            info!("program_args after: {:?}", program_args);
 
-            debug!("  -> run {} with {:?}", program, program_args);
             exec_task(
                 tasks,
                 &program,

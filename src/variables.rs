@@ -5,7 +5,6 @@ use crate::Variable;
 use log::debug;
 use regex::{Match, Regex};
 use std::collections::HashMap;
-use std::str;
 
 pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String> {
     let mut values: HashMap<String, String> = HashMap::new();

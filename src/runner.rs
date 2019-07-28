@@ -18,10 +18,7 @@ pub fn exec_task(
         .expect(&format!("Task '{}' unknown.", task_name));
 
     if command_call_stack.contains(&task_name) {
-        panic!(format!(
-            "Recursivity problem: '{}' get called again.",
-            task_name
-        ));
+        panic!("Recursivity problem: '{}' get called again.", task_name);
     }
 
     for command in &task.commands {
@@ -74,8 +71,8 @@ fn run_command(command: &String, call_args: &Vec<String>, variables: &HashMap<St
 
     if !output.status.success() {
         match output.status.code() {
-            Some(code) => panic!(format!("Command '{}' failed with code {}.", command, code)),
-            None => panic!(format!("Command '{}' terminated by signal", command)),
+            Some(code) => panic!("Command '{}' failed with code {}.", command, code),
+            None => panic!("Command '{}' terminated by signal", command),
         }
     }
 }

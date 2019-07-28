@@ -26,5 +26,13 @@ done
 
 # failure is what we want
 set +e
-cargo run fail
-if [[ "$?" != 101 ]]; then exit 1; fi
+
+fail() {
+    $@
+    if [[ "$?" != 101 ]]; then exit 1; fi
+}
+
+fail cargo run fail
+fail cargo run non_existent
+
+

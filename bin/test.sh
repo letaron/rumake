@@ -4,12 +4,12 @@
 cargo fmt --all -- --check
 
 # tasks
-get_task() {
+get_tasks() {
     grep -E "^[a-z0-9_-.]+:" rumake.yaml | cut -d ":" -f 1 | grep -v -E ".*$1.*"
 }
 
 EXCLUDE="fail"
-TASKS=$(get_task $EXCLUDE)
+TASKS=$(get_tasks $EXCLUDE)
 
 for task in $TASKS
 do
@@ -17,7 +17,7 @@ do
 done
 
 EXCLUDE="ls|cargo|ps|fail"
-TASKS=$(get_task $EXCLUDE)
+TASKS=$(get_tasks $EXCLUDE)
 
 for task in $TASKS
 do

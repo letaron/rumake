@@ -57,7 +57,7 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
 
         // if there is no reference, don't register
         if !re.is_match(&variable.value) {
-            debug!("  no reference in {}\n", name);
+            debug!("  {} has no references\n", name);
             continue;
         }
 

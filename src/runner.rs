@@ -114,8 +114,12 @@ fn expand_program_args(
 ) -> Vec<String> {
     debug!("program_args: {:?}", program_args);
 
-    if is_single_insruction_task {
-        debug!("  single instruction task, forwarding: {:?}", call_args);
+    // try to shortcut if it's a mono-instruction task w/o $RUMAKE_ARGS
+    if is_single_insruction_task && !program_args.contains(&"$RUMAKE_ARGS".to_string()) {
+        debug!(
+            "  single instruction task, no $RUMAKE_ARGS found, forwarding: {:?}",
+            call_args
+        );
         let mut programs_args = program_args.clone();
         &programs_args.append(&mut call_args.to_vec());
         return programs_args.to_vec();
@@ -144,12 +148,6 @@ fn expand_program_args(
 
 fn replace_rumake_args(program_args: Vec<String>, call_args: &Vec<String>) -> Vec<String> {
     // replace $RUMAKE_ARGS with the CLI args
-
-    info!(
-        "program_args{:?} -- call_args {:?}",
-        program_args, call_args
-    );
-
     if let Some(index) = program_args.iter().position(|x| x == "$RUMAKE_ARGS") {
         let (left, right) = program_args.split_at(index);
         let mut right = right.to_vec();

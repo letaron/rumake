@@ -48,21 +48,23 @@ rumake me
 
 `rumake TASK [ARGS]`
 
-### Task ordering
+### Task referencing
 
-You can reference a taks by using `@` it's name.
+You can reference a taks by `@`-name.
 
 > When referencing a task, the arguments passed to the task are the ones declared in the referencing task, not the "global" ones.
 
 With this configuration
 ```yaml
-pizza: echo Let\\\'s go for a pizza with $RUMAKE_ARGS
+pizza: echo \"Let\'s go for a pizza with\"
+# you can place the $RUMAKE_ARGS if needed
+# pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
 pizza_super: "@pizza super $RUMAKE_ARGS"
 pizza_extra:
-  - echo "hmmm..."
+  - echo hmmm...
+  - echo I love $RUMAKE_ARGS
   - "@pizza_super extra $RUMAKE_ARGS !"
 ```
-> Notice the quote escaping
 
 You use it like this
 ```bash
@@ -110,6 +112,17 @@ will be used like that
 ```bash
 rumake dkcr shell_debug node
 ```
+
+## Escaping
+
+Notice the quote escaping
+```yaml
+task: echo It\\\'s a test
+# or
+task: echo \"It\'s a test\"
+```
+
+> The task in lauched by `sh -e -u -c task"
 
 ## Configuration
 
@@ -175,5 +188,5 @@ We needed a tool close to the OS and not needing a specific language (Python, PH
 Being not writed in a interpreted langage allows us to be free from a runtime & ease the interface with other tools.
 
 > Why not using `make` ? \
-> `make` was too diverted to provide what we need but it's a building tool, not a task runner. \
-> `Makefile` syntax can be tiedous to manipulate.
+> `make` was too diverted to provide what we need but it's a building tool, not a task runner.
+> We could feel that `Makefile` syntax can be tiedous to manipulate.

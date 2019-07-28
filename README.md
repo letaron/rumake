@@ -8,29 +8,6 @@
 cargo install --git https://github.com/letaron/rumake.git
 ```
 
-## Why ?
-
-We needed a tool close to the OS and not needing a specific language (Python, PHP, Node, ...).
-
-Being not writed in a interpreted langage allows us to be free from a runtime & ease the interface with other tools.
-
-> Why not using `make` ? \
-> `make` was too diverted to provide what we need but it's a building tool, not a task runner. \
-> `Makefile` syntax can be tiedous to manipulate.
-
-## Features
-
-- simple syntax (YAML).
-- can pass down arguments to the instruction.
-- can referecence tasks & variables.
-- check for recursivity.
-
-With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
-
-## Usage
-
-`rumake TASK [ARGS]`
-
 ## Example
 
 Let's say you have this configuration:
@@ -52,6 +29,20 @@ rumake encore dev --hot
 
 rumake me # echo the user
 ```
+
+## Usage
+
+`rumake TASK [ARGS]`
+
+
+## Features
+
+- simple syntax (YAML).
+- can pass down arguments to the instruction.
+- can referecence tasks & variables.
+- check for recursivity.
+
+With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
 
 ## Configuration
 
@@ -109,3 +100,13 @@ rumake task2
 $foo: foo
 $bar: bar baz${foo}51 # computes to "bar bazfoo51"
 ```
+
+## Why ?
+
+We needed a tool close to the OS and not needing a specific language (Python, PHP, Node, ...).
+
+Being not writed in a interpreted langage allows us to be free from a runtime & ease the interface with other tools.
+
+> Why not using `make` ? \
+> `make` was too diverted to provide what we need but it's a building tool, not a task runner. \
+> `Makefile` syntax can be tiedous to manipulate.

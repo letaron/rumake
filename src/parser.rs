@@ -1,14 +1,37 @@
 use linked_hash_map::LinkedHashMap;
+use log::debug;
 use std::fs::File;
 use std::io::Read;
+use std::path::Path;
 use yaml_rust::{Yaml, YamlLoader};
 
 pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
-    let mut f = File::open("rumake.yaml").expect("Error while opening rumake.yaml");
-    let mut s = String::new();
-    f.read_to_string(&mut s).expect("Cannot read rumake.yaml");
+    let configs = vec!["rumake.yaml", "rumake.yaml.dist"];
+    let mut config: Option<&str> = None;
 
-    let docs = YamlLoader::load_from_str(&s).expect("Cannot parse rumake.yaml");
+    for _config in &configs {
+        if Path::new(_config).is_file() {
+            config = Some(&_config);
+            debug!("configuration: {}", _config);
+            break;
+        }
+    }
+
+    if config.is_none() {
+        panic!(format!(
+            "No config file found in working directory. Looked for {}.",
+            configs.join(", ")
+        ));
+    }
+
+    let filename = config.unwrap();
+
+    let mut config_buffer = String::new();
+    let mut file = File::open(filename).expect(&format!("Error while opening {}", filename));
+    file.read_to_string(&mut config_buffer)
+        .expect(&format!("Cannot read {}", filename));
+
+    let docs = YamlLoader::load_from_str(&config_buffer).expect("Cannot parse config");
     let doc = docs[0].clone().into_hash().unwrap();
 
     doc

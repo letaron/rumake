@@ -2,7 +2,6 @@ use crate::Task;
 use log::{debug, info};
 use shellwords;
 use std::collections::HashMap;
-use std::mem;
 use std::process::{Command, Stdio};
 
 pub fn exec_task(
@@ -114,7 +113,7 @@ fn expand_variables_pass(
     let mut processed_args: Vec<String> = Vec::new();
     info!("expand_variables_pass: on recoit {:?}", args);
 
-    for (index, program_arg) in program_args.iter().enumerate() {
+    for program_arg in program_args {
         if !variables.contains_key(program_arg) {
             debug!("  parameter unknown {}", program_arg);
             processed_args.push(program_arg.to_string());
@@ -138,18 +137,15 @@ fn expand_variables_pass(
 /// is different from
 /// task: echo "$RUMAKE_ARGS toto" # one arg: "$RUMAKE_ARGS toto"
 /// ```
-fn expand_rumake_args_pass(
-    args: Vec<String>,
-    program_args: &Vec<String>,
-    call_args: &Vec<String>,
-) -> Vec<String> {
+fn expand_rumake_args_pass(args: Vec<String>, call_args: &Vec<String>) -> Vec<String> {
     let mut processed_args: Vec<String> = Vec::new();
     let flattened_call_args = &call_args.join(" ");
 
     info!("expand_rumake_args_pass: on recoit {:?}", args);
 
-    for (index, value) in args.iter().enumerate() {
+    for value in args {
         debug!("    in {}", value);
+        // normalize
         let value = value
             .replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
             .replace("$RUMAKE_ARGS", flattened_call_args);
@@ -163,6 +159,16 @@ fn expand_rumake_args_pass(
     processed_args
 }
 
+fn program_args_has_rumake_args(args: &Vec<String>) -> bool {
+    for arg in args {
+        if let Some(_) = arg.find("$RUMAKE_ARGS") {
+            return true;
+        }
+    }
+
+    false
+}
+
 fn expand_program_args(
     program_args: Vec<String>,
     call_args: &Vec<String>,
@@ -171,20 +177,18 @@ fn expand_program_args(
 ) -> Vec<String> {
     info!("program_args: {:?}", program_args);
 
-    let processed_args = expand_variables_pass(&program_args, &program_args, variables);
+    let mut processed_args = expand_variables_pass(&program_args, &program_args, variables);
     info!("expand_variables_pass: after {:?}", processed_args);
 
-    let processed_args = expand_rumake_args_pass(processed_args, &program_args, call_args);
-    info!("expand_rumake_args_pass: after {:?}", processed_args);
-
-    if is_single_insruction_task {
-        debug!(
-            "  single instruction task, forwarding: {:?}",
-            call_args
-        );
-        let mut processed_args = processed_args.clone();
-        &processed_args.append(&mut call_args.to_vec());
-        return processed_args.to_vec();
+    if program_args_has_rumake_args(&processed_args) {
+        processed_args = expand_rumake_args_pass(processed_args, call_args);
+        info!("expand_rumake_args_pass: after {:?}", processed_args);
+    } else {
+        if is_single_insruction_task {
+            debug!("  single instruction task, forwarding: {:?}", call_args);
+            &processed_args.append(&mut call_args.to_vec());
+            return processed_args;
+        }
     }
 
     debug!("  processed_args: {:?}", call_args.len());

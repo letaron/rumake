@@ -27,12 +27,12 @@ fn get_value(
     variables: &HashMap<String, Variable>,
     references: &HashMap<&String, Vec<String>>,
 ) -> String {
-    debug!("get value {}", name);
+    debug!("get variable value {}", name);
 
     let value = variables.get(name).unwrap().value.to_string();
 
     if !references.contains_key(name) {
-        debug!("  direct {}", value);
+        debug!("  found in variables {}", value);
         return value;
     }
 
@@ -57,7 +57,7 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
 
         // if there is no reference, don't register
         if !re.is_match(&variable.value) {
-            debug!("  {} has no references\n", name);
+            debug!("  {} has no references", name);
             continue;
         }
 
@@ -81,8 +81,6 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
                 refrenceds.push(referenced);
             }
         }
-
-        debug!("\n");
     }
 
     references

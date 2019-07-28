@@ -12,7 +12,7 @@ pub fn exec_task(
     command_call_stack: Vec<&String>,
     variables: &HashMap<String, String>,
 ) {
-    debug!("run {}", task_name);
+    debug!("run {} with {:?}", task_name, call_args);
 
     let task = tasks
         .get(task_name)
@@ -22,55 +22,86 @@ pub fn exec_task(
         panic!("Recursivity problem: '{}' get called again.", task_name);
     }
 
+    let is_single_insruction_task = task.instructions.len() == 1;
+
     for instruction in &task.instructions {
+        let instructions_parts = shellwords::split(&instruction).unwrap();
+        let (program, program_args) = instructions_parts.split_at(1);
+        let program = &program[0];
+        let program_args = program_args.to_vec();
+
         // if command references another task, execute it
-        if instruction.chars().next().unwrap() == '@' {
+        if program.chars().next().unwrap() == '@' {
             let mut new_command_call_stack = command_call_stack.clone();
             new_command_call_stack.push(&task_name);
 
+            let referenced_task_name = program.to_string().split_off(1);
+
+            debug!(
+                "  -> run before {} with {:?}",
+                referenced_task_name, program_args
+            );
+            let program_args = replace_rumake_args(program_args, call_args);
+
             // remove the first char "@"
-            let referenced_task_name = instruction.to_string().split_off(1);
-            debug!("  -> run {}", referenced_task_name);
+            debug!("  -> run {} with {:?}", referenced_task_name, program_args);
             exec_task(
                 tasks,
                 &referenced_task_name,
-                &call_args,
+                &program_args,
                 new_command_call_stack,
                 variables,
             );
             continue;
         }
 
-        run_instruction(instruction, &call_args, variables);
+        run_instruction(
+            program,
+            program_args,
+            &call_args,
+            variables,
+            is_single_insruction_task,
+        );
     }
 }
 
 fn run_instruction(
-    instruction: &String,
+    program: &String,
+    program_args: Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
+    is_single_insruction_task: bool,
 ) {
-    let instructions_parts = shellwords::split(&instruction).unwrap();
-    let (program, program_args) = instructions_parts.split_at(1);
-    let program_args = expand_program_args(program_args.to_vec(), call_args, variables);
-    let program = &program[0];
-    let mut command = Command::new(program);
+    let program_args = expand_program_args(
+        program_args,
+        call_args,
+        variables,
+        is_single_insruction_task,
+    );
 
-    command.args(&program_args);
+    let mut real_command = program.to_string();
 
-    info!("{:?}", command);
+    for call_arg in program_args {
+        real_command = format!("{} {}", real_command, call_arg);
+    }
+
+    let mut command = Command::new("sh");
+
+    info!("{:?}", real_command);
 
     let output = command
+        .args(vec!["-e", "-u", "-c"])
+        .arg(&real_command)
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .output()
-        .expect(&format!("Command '{:?}' failed.", program_args));
+        .expect(&format!("Command '{:?}' failed.", real_command));
 
     if !output.status.success() {
         match output.status.code() {
-            Some(code) => panic!("Command '{:?}' failed with code {}.", program_args, code),
-            None => panic!("Command '{:?}' terminated by signal", program_args),
+            Some(code) => panic!("Command '{:?}' failed with code {}.", real_command, code),
+            None => panic!("Command '{:?}' terminated by signal", real_command),
         }
     }
 }
@@ -79,8 +110,16 @@ fn expand_program_args(
     program_args: Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
+    is_single_insruction_task: bool,
 ) -> Vec<String> {
     debug!("program_args: {:?}", program_args);
+
+    if is_single_insruction_task {
+        debug!("  single instruction task, forwarding: {:?}", call_args);
+        let mut programs_args = program_args.clone();
+        &programs_args.append(&mut call_args.to_vec());
+        return programs_args.to_vec();
+    }
 
     let mut processed_args = program_args.clone();
 
@@ -95,20 +134,35 @@ fn expand_program_args(
         mem::replace(&mut processed_args[index], value.to_string());
         debug!("  replaced {} by {}", program_arg, value);
     }
-    debug!("processed_args: {:?}", processed_args);
 
-    if let Some(index) = processed_args.iter().position(|x| x == "$RUMAKE_ARGS") {
-        let (left, right) = processed_args.split_at(index);
+    let processed_args = replace_rumake_args(processed_args, call_args);
+
+    debug!("  processed_args: {:?}", processed_args);
+
+    processed_args
+}
+
+fn replace_rumake_args(program_args: Vec<String>, call_args: &Vec<String>) -> Vec<String> {
+    // replace $RUMAKE_ARGS with the CLI args
+
+    info!(
+        "program_args{:?} -- call_args {:?}",
+        program_args, call_args
+    );
+
+    if let Some(index) = program_args.iter().position(|x| x == "$RUMAKE_ARGS") {
+        let (left, right) = program_args.split_at(index);
         let mut right = right.to_vec();
         right.remove(0);
 
-        processed_args = left.to_vec();
-        processed_args.extend_from_slice(&call_args);
-        processed_args.extend_from_slice(&right);
+        let mut program_args = left.to_vec();
+        program_args.extend_from_slice(&call_args);
+        program_args.extend_from_slice(&right);
 
-        // panic!("-- {:?}  {:?} -- {:?} {:?}", processed_args,  index, left, right);
-        debug!("  rumake args remplaced: {:?}", call_args);
+        debug!("rumake args remplaced: {:?}", call_args);
+
+        return program_args;
     }
 
-    processed_args
+    program_args
 }

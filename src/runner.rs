@@ -24,8 +24,6 @@ pub fn exec_task(
         panic!("Recursivity problem: '{}' get called again.", task_name);
     }
 
-    let is_single_insruction_task = task.instructions.len() == 1;
-
     for instruction in &task.instructions {
         let instructions_parts = shellwords::split(&instruction).unwrap();
         let (program, program_args) = instructions_parts.split_at(1);
@@ -37,20 +35,17 @@ pub fn exec_task(
             let mut new_command_call_stack = command_call_stack.clone();
             new_command_call_stack.push(&task_name);
 
-            let referenced_task_name = program.to_string().split_off(1);
+            // remove the first char "@"
+            let program = program.to_string().split_off(1);
 
-            debug!(
-                "  -> run dependency {} with {:?}",
-                referenced_task_name, program_args
-            );
+            debug!("  -> run dependency {} with {:?}", program, program_args);
             let program_args = expand_program_args(&program_args, call_args, variables, false);
             info!("program_args after: {:?}", program_args);
 
-            // remove the first char "@"
-            debug!("  -> run {} with {:?}", referenced_task_name, program_args);
+            debug!("  -> run {} with {:?}", program, program_args);
             exec_task(
                 tasks,
-                &referenced_task_name,
+                &program,
                 &program_args,
                 new_command_call_stack,
                 variables,
@@ -63,7 +58,7 @@ pub fn exec_task(
             &program_args,
             &call_args,
             variables,
-            is_single_insruction_task,
+            task.instructions.len() == 1, // is_mono_insruction_task
         );
     }
 }

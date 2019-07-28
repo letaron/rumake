@@ -3,7 +3,7 @@ extern crate regex;
 
 use crate::Variable;
 use log::debug;
-use regex::{Match, Regex};
+use regex::Regex;
 use std::collections::HashMap;
 
 pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String> {
@@ -14,8 +14,8 @@ pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String>
         check_cyclic_dependencies(&name, &name, references.get(name).unwrap(), &references);
     }
 
-    for (name, variable) in variables {
-        values.insert(name.clone(), get_value(&name, variables, &references));
+    for name in variables.keys() {
+        values.insert(name.to_string(), get_value(&name, variables, &references));
     }
 
     values
@@ -32,7 +32,7 @@ fn get_value(
 ) -> String {
     debug!("get value {}", name);
 
-    let mut value = variables.get(name).unwrap().value.clone();
+    let mut value = variables.get(name).unwrap().value.to_string();
 
     if !references.contains_key(name) {
         debug!("  direct {}", value);

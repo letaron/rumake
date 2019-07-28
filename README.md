@@ -22,7 +22,7 @@ Being not writed in a interpreted langage allows us to be free from a runtime & 
 
 - simple syntax (YAML).
 - can pass down arguments to the instruction.
-- can referecence commands & variables.
+- can referecence tasks & variables.
 - check for recursivity.
 
 With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
@@ -59,19 +59,19 @@ Priority:
 1. if `rumake.yaml` exists in the working directory, it will be used.
 2. if `rumake.yaml.dist` exists in the working directory, it will be used.
 
-There is 2 types of element: `commands` & `variables`.
+There is 2 types of element: `tasks` & `variables`.
 
-### Commands
+### Tasks
 
-- Command name is any value not begining with a `$`.
-- Instruction is either an array of string or a string.
-- In case of the instructions are just a string, CLI args are forwarded.
-- Command can reference another command by prefixing it's name with `@`.
+- Task name is any value not begining with a `$`.
+- Task contains either an array of string or a string (the instruction).
+- In case of task is only a string, CLI args are forwarded.
+- A task can reference another task by prefixing it's name with `@`.
 
 ```yaml
-cmd1: instruction1
+task1: instruction1
 
-cmd2:
+task2:
   - instruction1
   - instruction2
   - for file in $(ls); do
@@ -80,13 +80,13 @@ cmd2:
   # ...
 ```
 
-#### Reference commands
+#### Reference tasks
 
 You need to write the command name prefixed with `@`
 
 ```yaml
-cmd1: echo "foo"
-cmd2:
+task1: echo "foo"
+task2:
   - "@cmd1"
   - echo "bar"
   - "@cmd1"
@@ -94,7 +94,7 @@ cmd2:
 
 usage
 ```bash
-rumake cmd2
+rumake task2
 # foo
 # bar
 # foo

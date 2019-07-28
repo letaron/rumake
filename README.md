@@ -1,6 +1,6 @@
 # RUMAKE
 
-`rumake` is a task runner written in Rust. It doesn't attend to be a drop-in replacement for `make`.
+`rumake` is a task runner written in Rust that tries to stay close to the sell. It doesn't attend to be a drop-in replacement for `make`.
 
 ## Installation
 
@@ -39,7 +39,7 @@ rumake me # echo the user
 
 - simple syntax (YAML).
 - can pass down arguments to the instruction.
-- can referecence tasks & variables.
+- can reference tasks & variables.
 - check for recursivity.
 
 With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.

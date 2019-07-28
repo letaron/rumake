@@ -21,10 +21,7 @@ cargo install --git https://github.com/letaron/rumake.git
 
 Let's say you have this configuration:
 ```yaml
-console: docker-compose run --rm php bin/console $console_args
-$console_args: --verbose
-
-encore: docker-compose run --rm node yarn encore
+shell: docker-compose run --rm image
 
 hello: cowsay hello $from !
 me:
@@ -35,10 +32,7 @@ $from: world
 
 You can use it like this:
 ```bash
-rumake console cache:pool:prune # will run with --verbose flag
-rumake console lint:twig # will run with --verbose flag
-
-rumake encore dev --hot
+rumake shell bash # docker-compose run --rm image bash
 
 rumake me
 # hello world !
@@ -69,9 +63,11 @@ rumake task2
 
 ### Passing arguments
 
+You can pass down arguments from the CLI to the task's instruction and choose wich instruction will receive it, and where.
+
 #### Default behavior
 
-If the task consist of a simple intruction, CLI args are forward to the end.
+If the task consist of a simple intruction, CLI args are appened to the end.
 
 With this configuration
 ```yaml
@@ -125,7 +121,7 @@ rumake pizza_extra cheese
 
 ## Escaping
 
-Notice the quote escaping
+Notice the quote escaping. If an instruction need a quote, it needs to get out from YAML first.
 ```yaml
 task: echo It\\\'s a test
 # or
@@ -134,7 +130,7 @@ task: echo \"It\'s a test\"
 # will echo: It's a test
 ```
 
-> The each task instruction is lauched by `sh -e -u -c instruction`
+> The each task instruction is lauched by `sh -e -u -c instruction`.
 
 ## Configuration
 

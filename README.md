@@ -8,13 +8,13 @@ We needed a tool close to the OS and not needing a specific language (Python, PH
 
 Being not writed in a interpreted langage allows us to be free from a runtime & ease the interface with other tools.
 
-> Why not using `make` ?
+> Why not using `make` ? \
 > `make` was too diverted to provide what we need but it's a building tool, not a task runner.
 
 ## Benefits
 
-- simple syntax (YAML)
-- can pass down arguments to the task
+- simple syntax (YAML).
+- can pass down arguments to the instruction.
 
 With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
 
@@ -57,7 +57,7 @@ There is 2 types of element: `commands` & `variables`.
 - Command name is any value not begining with a `$`.
 - Instruction is either an array of string or a string.
 - In case of the instructions are just a string, CLI args are forwarded.
-- Command can reference another command by prefixing it's name with "@".
+- Command can reference another command by prefixing it's name with `@`.
 
 ```yaml
 cmd1: instruction1
@@ -71,6 +71,26 @@ cmd2:
   # ...
 ```
 
+#### Reference commands
+
+You need to write the command name prefixed with `@`
+
+```yaml
+cmd1: echo "foo"
+cmd2:
+  - "@cmd1"
+  - echo "bar"
+  - "@cmd1"
+```
+
+usage
+```bash
+rumake cmd2
+# foo
+# bar
+# foo
+```
+
 ### Variables
 
  - Variables name starts with `$`.
@@ -78,7 +98,5 @@ cmd2:
 
 ```yaml
 $foo: foo
-$bar: bar baz${foo}51 # computes to "bar baefoo51"
+$bar: bar baz${foo}51 # computes to "bar bazfoo51"
 ```
-
-

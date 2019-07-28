@@ -7,18 +7,21 @@ ps: ps a
 
 cargo: cargo $RUMAKE_ARGS
 
-task2:
-  - "@task1"
-  - echo 3 "tata"
+task: echo It\\\'s a test
 
 task1:
   - echo 1 "tutu \& titi"
   - echo 2 "toto"
 
+task2:
+  - "@task1"
+  - echo 3 "tata"
+
 echo: echo
 echov: 
   - echo "first $RUMAKE_ARGS"
   - "@echo $RUMAKE_ARGS"
+  - "@echo after"
 
 hello: cowsay hello
 me:
@@ -31,6 +34,12 @@ pizza_super: "@pizza super $RUMAKE_ARGS"
 pizza_extra:
   - echo hmmm...
   - echo I love $RUMAKE_ARGS
-  - "@pizza_super extra $RUMAKE_ARGS !"
+  - "@pizza_super extra '$RUMAKE_ARGS' !"
 
-task: echo It\\\'s a test
+multiline: >
+  echo "this is";
+  TEXT=multiline;
+  echo "\\\n$TEXT\\\n";
+  echo !
+
+fail: exit 1

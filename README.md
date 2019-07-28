@@ -128,9 +128,11 @@ task: echo \"It\'s a test\"
 
 ## Configuration
 
-Priority:
+Priority for lodging (no merging is done):
 1. if `rumake.yaml` exists in the working directory, it will be used.
 2. if `rumake.yaml.dist` exists in the working directory, it will be used.
+
+See a full working configuration [here](fixtures/example.yaml).
 
 There is 2 types of element: `tasks` & `variables`.
 

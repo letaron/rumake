@@ -10,7 +10,6 @@ use std::env;
 pub struct Task {
     name: String,
     instructions: Vec<String>,
-    pass_args: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -48,29 +47,19 @@ fn main() {
             }
             _ => {
                 let mut instructions: Vec<String>;
-                let pass_args: bool;
 
                 if value.as_str().is_some() {
                     instructions = vec![value.clone().into_string().unwrap()];
-                    pass_args = true;
                 } else if value.as_vec().is_some() {
                     instructions = Vec::new();
                     for line in value.as_vec().unwrap() {
                         instructions.push(parser::yaml_element_as_string(line));
                     }
-                    pass_args = false;
                 } else {
                     panic!("Task '{}' must be string or array of string.", name)
                 }
 
-                tasks.insert(
-                    name.to_string(),
-                    Task {
-                        name,
-                        instructions,
-                        pass_args,
-                    },
-                );
+                tasks.insert(name.to_string(), Task { name, instructions });
             }
         }
     }

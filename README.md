@@ -120,9 +120,11 @@ Notice the quote escaping
 task: echo It\\\'s a test
 # or
 task: echo \"It\'s a test\"
+
+# will echo: It's a test
 ```
 
-> The task in lauched by `sh -e -u -c task"
+> The each task instruction is lauched by `sh -e -u -c instruction`
 
 ## Configuration
 

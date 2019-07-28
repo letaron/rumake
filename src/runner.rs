@@ -38,7 +38,7 @@ pub fn exec_task(
             let referenced_task_name = program.to_string().split_off(1);
 
             debug!(
-                "  -> run before {} with {:?}",
+                "  -> run dependency {} with {:?}",
                 referenced_task_name, program_args
             );
             let program_args = replace_rumake_args(program_args, call_args);
@@ -106,42 +106,88 @@ fn run_instruction(
     }
 }
 
+fn expand_variables_pass(
+    args: &Vec<String>,
+    program_args: &Vec<String>,
+    variables: &HashMap<String, String>,
+) -> Vec<String> {
+    let mut processed_args: Vec<String> = Vec::new();
+    info!("expand_variables_pass: on recoit {:?}", args);
+
+    for (index, program_arg) in program_args.iter().enumerate() {
+        if !variables.contains_key(program_arg) {
+            debug!("  parameter unknown {}", program_arg);
+            processed_args.push(program_arg.to_string());
+            continue;
+        }
+
+        let value = variables.get(program_arg).unwrap();
+        processed_args.push(value.to_string());
+        debug!("  replaced {} by {}", program_arg, value);
+    }
+
+    info!("expand_variables_pass: on retourne {:?}", processed_args);
+
+    processed_args
+}
+
+/// $RUMAKE_ARGS pass
+/// We can't look only for $RUMAKE_ARGS because of:
+/// ```yaml
+/// task: echo $RUMAKE_ARGS toto # two args: ["$RUMAKE_ARGS", "toto"]
+/// is different from
+/// task: echo "$RUMAKE_ARGS toto" # one arg: "$RUMAKE_ARGS toto"
+/// ```
+fn expand_rumake_args_pass(
+    args: Vec<String>,
+    program_args: &Vec<String>,
+    call_args: &Vec<String>,
+) -> Vec<String> {
+    let mut processed_args: Vec<String> = Vec::new();
+    let flattened_call_args = &call_args.join(" ");
+
+    info!("expand_rumake_args_pass: on recoit {:?}", args);
+
+    for (index, value) in args.iter().enumerate() {
+        debug!("    in {}", value);
+        let value = value
+            .replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
+            .replace("$RUMAKE_ARGS", flattened_call_args);
+        debug!("      -> {}", value);
+
+        processed_args.push(value)
+    }
+
+    info!("expand_rumake_args_pass: on retourne {:?}", processed_args);
+
+    processed_args
+}
+
 fn expand_program_args(
     program_args: Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
     is_single_insruction_task: bool,
 ) -> Vec<String> {
-    debug!("program_args: {:?}", program_args);
+    info!("program_args: {:?}", program_args);
 
-    // try to shortcut if it's a mono-instruction task w/o $RUMAKE_ARGS
-    if is_single_insruction_task && !program_args.contains(&"$RUMAKE_ARGS".to_string()) {
+    let processed_args = expand_variables_pass(&program_args, &program_args, variables);
+    info!("expand_variables_pass: after {:?}", processed_args);
+
+    let processed_args = expand_rumake_args_pass(processed_args, &program_args, call_args);
+    info!("expand_rumake_args_pass: after {:?}", processed_args);
+
+    if is_single_insruction_task {
         debug!(
-            "  single instruction task, no $RUMAKE_ARGS found, forwarding: {:?}",
+            "  single instruction task, forwarding: {:?}",
             call_args
         );
-        let mut programs_args = program_args.clone();
-        &programs_args.append(&mut call_args.to_vec());
-        return programs_args.to_vec();
+        let mut processed_args = processed_args.clone();
+        &processed_args.append(&mut call_args.to_vec());
+        return processed_args.to_vec();
     }
 
-    let mut processed_args = program_args.clone();
-
-    for (index, program_arg) in program_args.iter().enumerate() {
-        if !variables.contains_key(program_arg) {
-            debug!("  parameter unknown {}", program_arg);
-            continue;
-        }
-
-        let value = variables.get(program_arg).unwrap();
-
-        mem::replace(&mut processed_args[index], value.to_string());
-        debug!("  replaced {} by {}", program_arg, value);
-    }
-
-    let processed_args = replace_rumake_args(processed_args, call_args);
-
-    debug!("  processed_args: {:?}", processed_args);
+    debug!("  processed_args: {:?}", call_args.len());
 
     processed_args
 }

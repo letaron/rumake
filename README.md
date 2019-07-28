@@ -2,6 +2,15 @@
 
 `rumake` is a task runner written in Rust that tries to stay close to the sell. It doesn't attend to be a drop-in replacement for `make`.
 
+Principal features are:
+- not-coupled to a runtime.
+- simple syntax (YAML).
+- can pass down arguments to the instruction.
+- tasks & variables dependency.
+- check for infinite recursive declaration.
+
+With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
+
 ## Installation
 
 ```shell
@@ -17,32 +26,90 @@ $console_args: --verbose
 
 encore: docker-compose run --rm node yarn encore
 
-me: echo $USER
+hello: cowsay hello
+me:
+  - "@hello"
+  - echo "I\'m $USER and time is $(date)"
 ```
 
 You can use it like this:
 ```bash
-rumake console cache:pool:prune
-rumake console lint:twig
+rumake console cache:pool:prune # will run with --verbose flag
+rumake console lint:twig # will run with --verbose flag
 
 rumake encore dev --hot
 
-rumake me # echo the user
+rumake me
+# ...
+# I'm ... and time is ...
 ```
 
 ## Usage
 
 `rumake TASK [ARGS]`
 
+### Task ordering
 
-## Features
+You can reference a taks by using `@` it's name.
 
-- simple syntax (YAML).
-- can pass down arguments to the instruction.
-- can reference tasks & variables.
-- check for recursivity.
+> When referencing a task, the arguments passed to the task are the ones declared in the referencing task, not the "global" ones.
 
-With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
+With this configuration
+```yaml
+pizza: echo Let\\\'s go for a pizza with $RUMAKE_ARGS
+pizza_super: "@pizza super $RUMAKE_ARGS"
+pizza_extra:
+  - echo "hmmm..."
+  - "@pizza_super extra $RUMAKE_ARGS !"
+```
+> Notice the quote escaping
+
+You use it like this
+```bash
+rumake pizza cheese # Let's go for a pizza with cheese
+
+rumake pizza_extra cheese
+# hmmm...
+# Let's go for a pizza with super extra cheese !
+```
+
+### Passing arguments
+
+#### Default behavior
+
+If the task consist of a simple intruction, CLI args are forward to the end.
+
+With this configuration
+```yaml
+dkcr: docker-compose run --rm
+```
+
+will be used like that
+```bash
+# will run docker-compose run --rm node bash
+rumake dkcr node bash
+```
+
+When the task has multiple instructions, you need to place the arguments. It allow more use cases, please see below.
+
+#### Placing arguments
+
+`rumake` replace the special arguments `$RUMAKE_ARGS` by CLI args.
+
+With this configuration
+```yaml
+shell: docker-compose run $RUMAKE_ARGS bash 
+shell_debug:
+  - echo "Current status"
+  - docker-compose ps $RUMAKE_ARGS
+  - "@shell --rm $RUMAKE_ARGS"
+
+```
+
+will be used like that
+```bash
+rumake dkcr shell_debug node
+```
 
 ## Configuration
 

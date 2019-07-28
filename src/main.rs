@@ -65,10 +65,7 @@ fn main() {
                     }
                     pass_args = false;
                 } else {
-                    panic!(format!(
-                        "Task '{}' must be string or array of string.",
-                        name
-                    ))
+                    panic!("Task '{}' must be string or array of string.", name)
                 }
 
                 tasks.insert(

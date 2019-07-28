@@ -1,6 +1,12 @@
 # RUMAKE
 
-`rumake` is a task runner written in Rust.
+`rumake` is a task runner written in Rust. It doesn't attend to be a drop-in replacement for `make`.
+
+## Installation
+
+```shell
+cargo install --git https://github.com/letaron/rumake.git
+```
 
 ## Why ?
 
@@ -9,12 +15,15 @@ We needed a tool close to the OS and not needing a specific language (Python, PH
 Being not writed in a interpreted langage allows us to be free from a runtime & ease the interface with other tools.
 
 > Why not using `make` ? \
-> `make` was too diverted to provide what we need but it's a building tool, not a task runner.
+> `make` was too diverted to provide what we need but it's a building tool, not a task runner. \
+> `Makefile` syntax can be tiedous to manipulate.
 
-## Benefits
+## Features
 
 - simple syntax (YAML).
 - can pass down arguments to the instruction.
+- can referecence commands & variables.
+- check for recursivity.
 
 With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
 

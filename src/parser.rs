@@ -24,12 +24,12 @@ pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
         );
     }
 
-    let filename = config.unwrap();
+    let config = config.unwrap();
 
     let mut config_buffer = String::new();
-    let mut file = File::open(filename).expect(&format!("Error while opening {}", filename));
+    let mut file = File::open(config).expect(&format!("Error while opening {}", config));
     file.read_to_string(&mut config_buffer)
-        .expect(&format!("Cannot read {}", filename));
+        .expect(&format!("Cannot read {}", config));
 
     let docs = YamlLoader::load_from_str(&config_buffer).expect("Cannot parse config");
     let doc = docs[0].clone().into_hash().unwrap();

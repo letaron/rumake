@@ -32,13 +32,14 @@ fn get_value(
 ) -> String {
     debug!("get value {}", name);
 
-    let mut value = variables.get(name).unwrap().value.to_string();
+    let value = variables.get(name).unwrap().value.to_string();
 
     if !references.contains_key(name) {
         debug!("  direct {}", value);
         return value;
     }
 
+    let mut value = value;
     for referenced in references.get(name).unwrap() {
         let referenced_value = String::from(get_value(referenced, variables, references).as_str());
         debug!("  replace {} by {}", referenced, referenced_value);

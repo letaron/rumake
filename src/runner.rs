@@ -40,7 +40,8 @@ pub fn exec_task(
                 "  -> run dependency {} with {:?}",
                 referenced_task_name, program_args
             );
-            let program_args = replace_rumake_args(program_args, call_args);
+            let program_args = expand_program_args(&program_args, call_args, variables, false);
+            info!("program_args after: {:?}", program_args);
 
             // remove the first char "@"
             debug!("  -> run {} with {:?}", referenced_task_name, program_args);
@@ -56,7 +57,7 @@ pub fn exec_task(
 
         run_instruction(
             program,
-            program_args,
+            &program_args,
             &call_args,
             variables,
             is_single_insruction_task,
@@ -66,7 +67,7 @@ pub fn exec_task(
 
 fn run_instruction(
     program: &String,
-    program_args: Vec<String>,
+    program_args: &Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
     is_single_insruction_task: bool,
@@ -106,12 +107,11 @@ fn run_instruction(
 }
 
 fn expand_variables_pass(
-    args: &Vec<String>,
     program_args: &Vec<String>,
     variables: &HashMap<String, String>,
 ) -> Vec<String> {
     let mut processed_args: Vec<String> = Vec::new();
-    info!("expand_variables_pass: on recoit {:?}", args);
+    // info!("expand_variables_pass: on recoit {:?}", args);
 
     for program_arg in program_args {
         if !variables.contains_key(program_arg) {
@@ -125,7 +125,7 @@ fn expand_variables_pass(
         debug!("  replaced {} by {}", program_arg, value);
     }
 
-    info!("expand_variables_pass: on retourne {:?}", processed_args);
+    // info!("expand_variables_pass: on retourne {:?}", processed_args);
 
     processed_args
 }
@@ -141,11 +141,11 @@ fn expand_rumake_args_pass(args: Vec<String>, call_args: &Vec<String>) -> Vec<St
     let mut processed_args: Vec<String> = Vec::new();
     let flattened_call_args = &call_args.join(" ");
 
-    info!("expand_rumake_args_pass: on recoit {:?}", args);
+    // info!("expand_rumake_args_pass: on recoit {:?}", args);
 
     for value in args {
         debug!("    in {}", value);
-        // normalize
+        // normalize to $RUMAKE_ARGS before replacing
         let value = value
             .replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
             .replace("$RUMAKE_ARGS", flattened_call_args);
@@ -154,7 +154,7 @@ fn expand_rumake_args_pass(args: Vec<String>, call_args: &Vec<String>) -> Vec<St
         processed_args.push(value)
     }
 
-    info!("expand_rumake_args_pass: on retourne {:?}", processed_args);
+    // info!("expand_rumake_args_pass: on retourne {:?}", processed_args);
 
     processed_args
 }
@@ -170,19 +170,22 @@ fn program_args_has_rumake_args(args: &Vec<String>) -> bool {
 }
 
 fn expand_program_args(
-    program_args: Vec<String>,
+    program_args: &Vec<String>,
     call_args: &Vec<String>,
     variables: &HashMap<String, String>,
     is_single_insruction_task: bool,
 ) -> Vec<String> {
-    info!("program_args: {:?}", program_args);
+    debug!(
+        "program_args: {:?}, is_single_insruction_task: {}",
+        program_args, is_single_insruction_task
+    );
 
-    let mut processed_args = expand_variables_pass(&program_args, &program_args, variables);
-    info!("expand_variables_pass: after {:?}", processed_args);
+    let mut processed_args = expand_variables_pass(&program_args, variables);
+    debug!("expand_variables_pass: after {:?}", processed_args);
 
     if program_args_has_rumake_args(&processed_args) {
         processed_args = expand_rumake_args_pass(processed_args, call_args);
-        info!("expand_rumake_args_pass: after {:?}", processed_args);
+        debug!("expand_rumake_args_pass: after {:?}", processed_args);
     } else {
         if is_single_insruction_task {
             debug!("  single instruction task, forwarding: {:?}", call_args);
@@ -194,23 +197,4 @@ fn expand_program_args(
     debug!("  processed_args: {:?}", call_args.len());
 
     processed_args
-}
-
-fn replace_rumake_args(program_args: Vec<String>, call_args: &Vec<String>) -> Vec<String> {
-    // replace $RUMAKE_ARGS with the CLI args
-    if let Some(index) = program_args.iter().position(|x| x == "$RUMAKE_ARGS") {
-        let (left, right) = program_args.split_at(index);
-        let mut right = right.to_vec();
-        right.remove(0);
-
-        let mut program_args = left.to_vec();
-        program_args.extend_from_slice(&call_args);
-        program_args.extend_from_slice(&right);
-
-        debug!("rumake args remplaced: {:?}", call_args);
-
-        return program_args;
-    }
-
-    program_args
 }

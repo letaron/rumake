@@ -1,6 +1,3 @@
-extern crate log;
-extern crate regex;
-
 use crate::Variable;
 use log::debug;
 use regex::Regex;
@@ -11,7 +8,7 @@ pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String>
     let references = get_references(variables);
 
     for name in references.keys() {
-        check_cyclic_dependencies(&name, &name, references.get(name).unwrap(), &references);
+        check_cyclic_dependencies(&name, &name, &references);
     }
 
     for name in variables.keys() {
@@ -94,9 +91,10 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
 fn check_cyclic_dependencies(
     checked: &String,
     original: &String,
-    referenceds: &Vec<String>,
     references: &HashMap<&String, Vec<String>>,
 ) {
+    let referenceds = references.get(checked).unwrap();
+
     debug!(
         "check_cyclic_dependencies {} / {:?} / {:?}",
         checked, original, referenceds
@@ -111,12 +109,7 @@ fn check_cyclic_dependencies(
 
         if references.contains_key(&referenced) {
             debug!("    -> check_cyclic_dependencies {}", referenced);
-            check_cyclic_dependencies(
-                referenced,
-                original,
-                references.get(referenced).unwrap(),
-                references,
-            );
+            check_cyclic_dependencies(referenced, original, references);
         } else {
             debug!("    valid {}", referenced);
         }

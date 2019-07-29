@@ -2,8 +2,8 @@ use log::debug;
 use std::collections::HashMap;
 
 pub fn expand_program_args(
-    program_args: &Vec<String>,
-    call_args: &Vec<String>,
+    program_args: &[String],
+    call_args: &[String],
     variables: &HashMap<String, String>,
     is_mono_insruction_task: bool,
 ) -> Vec<String> {
@@ -30,7 +30,7 @@ pub fn expand_program_args(
 }
 
 fn expand_variables_pass(
-    program_args: &Vec<String>,
+    program_args: &[String],
     variables: &HashMap<String, String>,
 ) -> Vec<String> {
     let mut processed_args: Vec<String> = Vec::new();
@@ -60,7 +60,7 @@ fn expand_variables_pass(
 /// is different from
 /// task: echo "$RUMAKE_ARGS toto" # one arg: "$RUMAKE_ARGS toto"
 /// ```
-fn expand_rumake_args_pass(args: Vec<String>, call_args: &Vec<String>) -> Vec<String> {
+fn expand_rumake_args_pass(args: Vec<String>, call_args: &[String]) -> Vec<String> {
     let mut processed_args: Vec<String> = Vec::new();
     let flattened_call_args = &call_args.join(" ");
 

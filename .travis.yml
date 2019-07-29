@@ -13,7 +13,7 @@ cache: cargo
 before_script:
   - which rustfmt || cargo install rustfmt-nightly
   - cp fixtures/example.yaml rumake.yaml
-  - git clone https://github.com/sstephenson/bats.git $HOME/bats && cd $HOME/bats && sudo ./install.sh /usr/local
+  - git clone https://github.com/sstephenson/bats.git $HOME/bats && cd $HOME/bats && sudo ./install.sh /usr/local && cd
 
 
 script:

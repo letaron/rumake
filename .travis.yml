@@ -1,20 +1,29 @@
 language: rust
+sudo: required
 
 rust:
   - stable
   - beta
   - nightly
 
+
 cache: cargo
 
+
 before_script:
-  - rustup component add rustfmt
+  - which rustfmt || cargo install rustfmt-nightly
   - cp fixtures/example.yaml rumake.yaml
+  - git clone https://github.com/sstephenson/bats.git $HOME/bats && cd $HOME/bats && sudo ./install.sh /usr/local
+
+
 script:
+  - cargo check
   - cargo fmt --all -- --check
   - bin/test.sh
+  - tests/tasks.sh
+
 
 matrix:
+  fast_finish: true
   allow_failures:
     - rust: nightly
-  fast_finish: true

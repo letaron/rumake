@@ -3,6 +3,15 @@ name = "rumake"
 version = "0.1.0"
 authors = ["tom <t.vitureau@purjus.fr>"]
 edition = "2018"
+description = """
+rumake is a task runner written that tries to stay close to the shell.
+It uses YAML configuration, has task referencing and variables processing.
+"""
+repository = "https://github.com/letaron/rumake"
+readme = "README.md"
+keywords = ["make", "task", "runner"]
+categories = ["command-line-utilities", "task-runner"]
+license = "Unlicense"
 
 [dependencies]
 yaml-rust = "0.4"

@@ -136,7 +136,7 @@ task: echo \"It\'s a test\" # after YAML parsing: "It's a test"
 # will echo: It's a test
 ```
 
-> The each task instruction is lauched by `sh -e -u -c instruction`.
+> The each task instruction is lauched by `sh -e -u -c ...`.
 
 ## Configuration
 

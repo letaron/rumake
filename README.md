@@ -17,11 +17,14 @@ With arguments forwarding, no need to repeat a target for a small difference, yo
 cargo install --git https://github.com/letaron/rumake.git
 ```
 
-## Example
+## Quick start
+
+This tool make use of `tasks` & `variables`. You run tasks that can use variales.
 
 Let's say you have this configuration:
 ```yaml
-shell: docker-compose run --rm image
+# rumake.yaml
+dkcr: docker-compose run --rm
 
 hello: cowsay hello $from !
 me:
@@ -32,16 +35,21 @@ $from: world
 
 You can use it like this:
 ```bash
-rumake shell bash # docker-compose run --rm image bash
+rumake dkcr node bash # docker-compose run --rm node bash
 
 rumake me
-# hello world !
+# 🐄: hello world !
 # I'm ... and time is ...
 ```
 
 ## Usage
 
-`rumake TASK [ARGS]`
+Calling `rumake` is pretty straight-forward:
+```bash
+rumake TASK [ARGS]
+```
+
+`ARGS` will be used in task's instruction.
 
 ### Task referencing
 
@@ -93,14 +101,12 @@ shell: docker-compose run $RUMAKE_ARGS bash
 
 will be used like that
 ```bash
-rumake dkcr shell_debug node
+rumake dkcr shell node
 ```
 
 And when referencing, it's the same principle:
 ```yaml
-pizza: echo \"Let\'s go for a pizza with\"
-# you can place the $RUMAKE_ARGS if needed
-# pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
+pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
 pizza_super: "@pizza super $RUMAKE_ARGS"
 pizza_extra:
   - echo hmmm...
@@ -110,22 +116,22 @@ pizza_extra:
 
 You use it like this
 ```bash
-rumake pizza cheese # Let's go for a pizza with cheese
+rumake pizza cheese # Let's go for a pizza with cheese ! 🍕
 
 rumake pizza_extra cheese
 # hmmm...
 # I love cheese
-# Let's go for a pizza with super extra cheese !
+# Let's go for a pizza with super extra cheese ! 🍕
 ```
-> When referencing a task, the arguments passed to the task are the ones declared in the referencing task, not the "global" ones.
+> When referencing a task, the arguments passed to the task are the ones declared in the referencing task, like a new direct call, not the "global" ones.
 
 ## Escaping
 
 Notice the quote escaping. If an instruction need a quote, it needs to get out from YAML first.
 ```yaml
-task: echo It\\\'s a test
+task: echo It\\\'s a test # after YAML parsing: It\'s a test
 # or
-task: echo \"It\'s a test\"
+task: echo \"It\'s a test\" # after YAML parsing: "It's a test"
 
 # will echo: It's a test
 ```
@@ -136,15 +142,13 @@ task: echo \"It\'s a test\"
 
 See a full working configuration [here](fixtures/example.yaml).
 
-There is 2 types of element: `tasks` & `variables`.
-
-### Conf file
+### Config file used
 
 Priority for loading (no merging is done):
 1. if `rumake.yaml` exists in the working directory, it will be used.
 2. if `rumake.yaml.dist` exists in the working directory, it will be used.
 
-### Tasks
+### Task definition
 
 - Task name is any value not begining with a `$`.
 - Task contains either an array of string or a string (the instruction).
@@ -163,7 +167,7 @@ task2:
   # ...
 ```
 
-### Variables
+### Variable definition
 
  - Variables name starts with `$`.
  - Variable can reference other variable with their name.

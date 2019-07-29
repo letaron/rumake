@@ -6,8 +6,6 @@ $ls_args2: tty
 ps: ps a
 
 cargo: cargo $RUMAKE_ARGS
-fmt: cargo fmt --all --
-fmtc: "@fmt --check"
 
 task: echo It\\\'s a test
 

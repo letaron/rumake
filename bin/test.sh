@@ -1,13 +1,10 @@
 #!/bin/bash -eu
 
-# style
-cargo fmt --all -- --check
-
-# tasks
 get_tasks() {
     grep -E "^[a-z0-9_-.]+:" rumake.yaml | cut -d ":" -f 1 | grep -v -E ".*$1.*"
 }
 
+# test w/o parameter
 EXCLUDE="fail"
 TASKS=$(get_tasks $EXCLUDE)
 
@@ -19,6 +16,7 @@ done
 EXCLUDE="ls|cargo|ps|fail"
 TASKS=$(get_tasks $EXCLUDE)
 
+# tests with a parameter
 for task in $TASKS
 do
     cargo run $task foo
@@ -34,5 +32,3 @@ fail() {
 
 fail cargo run fail
 fail cargo run non_existent
-
-

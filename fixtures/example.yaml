@@ -6,6 +6,8 @@ $ls_args2: tty
 ps: ps a
 
 cargo: cargo $RUMAKE_ARGS
+fmt: cargo fmt --all --
+fmtc: "@fmt --check"
 
 task: echo It\\\'s a test
 
@@ -21,7 +23,7 @@ echov:
   - "@echo $RUMAKE_ARGS"
   - "@echo after"
 
-hello: cowsay hello $from !
+hello: "echo 🐄: hello $from !"
 me:
   - "@hello"
   - echo "I\'m $USER and time is $(date)"

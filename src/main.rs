@@ -78,7 +78,7 @@ fn get_task_name(args: &[String]) -> &String {
     &args[1]
 }
 
-// todo seggregate rustake args from task args (ie. [rustake args] -- [task args])
+// todo seggregate rustake args from task args (ie. [rumake args] -- [task args])
 fn get_calls_args(args: &Vec<String>) -> Vec<String> {
     args.clone().split_off(2)
 }

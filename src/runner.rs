@@ -10,7 +10,7 @@ use std::process::{Command, Stdio};
 pub fn exec_task(
     tasks: &HashMap<String, Task>,
     task_name: &String,
-    call_args: &Vec<String>,
+    call_args: &[String],
     command_call_stack: Vec<&String>,
     variables: &HashMap<String, String>,
 ) {

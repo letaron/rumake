@@ -18,7 +18,7 @@ pub fn exec_task(
 
     let task = tasks
         .get(task_name)
-        .expect(&format!("Task '{}' unknown.", task_name));
+        .unwrap_or_else(|| panic!("Task '{}' unknown.", task_name));
 
     if command_call_stack.contains(&task_name) {
         panic!("Recursivity problem: '{}' get called again.", task_name);
@@ -31,7 +31,7 @@ pub fn exec_task(
         let program_args = program_args.to_vec();
 
         // if command references another task, execute it
-        if program.chars().next().unwrap() == '@' {
+        if program.starts_with('@') {
             let mut new_command_call_stack = command_call_stack.clone();
             new_command_call_stack.push(&task_name);
 

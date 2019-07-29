@@ -27,9 +27,9 @@ pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
     let config = config.unwrap();
 
     let mut config_buffer = String::new();
-    let mut file = File::open(config).expect(&format!("Error while opening {}", config));
+    let mut file = File::open(config).unwrap_or_else(|_| panic!("Error while opening {}", config));
     file.read_to_string(&mut config_buffer)
-        .expect(&format!("Cannot read {}", config));
+        .unwrap_or_else(|_| panic!("Cannot read {}", config));
 
     let docs = YamlLoader::load_from_str(&config_buffer).expect("Cannot parse config");
 

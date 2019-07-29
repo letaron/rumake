@@ -20,7 +20,7 @@ pub fn expand_program_args(
         debug!("expand_rumake_args_pass: after {:?}", processed_args);
     } else if is_mono_insruction_task {
         debug!("  single instruction task, forwarding: {:?}", call_args);
-        &processed_args.append(&mut call_args.to_vec());
+        processed_args.append(&mut call_args.to_vec());
         return processed_args;
     }
 
@@ -82,9 +82,9 @@ fn expand_rumake_args_pass(args: Vec<String>, call_args: &[String]) -> Vec<Strin
     processed_args
 }
 
-fn program_args_has_rumake_args(args: &Vec<String>) -> bool {
+fn program_args_has_rumake_args(args: &[String]) -> bool {
     for arg in args {
-        if let Some(_) = arg.find("$RUMAKE_ARGS") {
+        if arg.find("$RUMAKE_ARGS").is_some() {
             return true;
         }
     }

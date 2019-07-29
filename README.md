@@ -9,8 +9,6 @@ Principal features are:
 - tasks & variables dependency.
 - check for infinite recursive declaration.
 
-With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
-
 ## Installation
 
 ```shell
@@ -72,6 +70,8 @@ rumake task2
 ### Passing arguments
 
 You can pass down arguments from the CLI to the task's instruction and choose wich instruction will receive it, and where.
+With arguments forwarding, no need to repeat a target for a small difference, you can factorise tasks.
+
 
 #### Default behavior
 
@@ -96,7 +96,7 @@ When the task has multiple instructions, you need to place the arguments. It all
 
 With this configuration
 ```yaml
-shell: docker-compose run $RUMAKE_ARGS bash 
+shell: docker-compose run $RUMAKE_ARGS bash
 ```
 
 will be used like that
@@ -177,6 +177,13 @@ $foo: foo
 $bar: bar baz${foo}51 # computes to "bar bazfoo51"
 ```
 
+## Shell completion
+
+Shell completion is supported for **Bash**, move `[fixtures/rumake-completion.bash]` to `$XDG_CONFIG_HOME/bash_completion` or `/etc/bash_completion.d/`, ie.
+```bash
+cp fixtures/rumake-completion.bash ${XDG_CONFIG_HOME:-/etc/bash_completion.d/}/rumake
+```
+
 ## Why ?
 
 We needed a tool close to the OS and not needing a specific language (Python, PHP, Node, ...).
@@ -186,3 +193,7 @@ Being not writed in a interpreted langage allows us to be free from a runtime & 
 > Why not using `make` ? \
 > `make` was too diverted to provide what we need but it's a building tool, not a task runner.
 > We could feel that `Makefile` syntax can be tiedous to manipulate.
+
+### See also
+
+- [cargo-make](https://github.com/sagiegurari/cargo-make)

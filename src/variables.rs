@@ -18,7 +18,7 @@ pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String>
     values
 }
 
-fn format_regex_match(name: String) -> String {
+fn normalize_regex_match(name: String) -> String {
     name.replace('{', "").replace('}', "")
 }
 
@@ -62,7 +62,7 @@ fn get_references(variables: &HashMap<String, Variable>) -> HashMap<&String, Vec
         }
 
         for capture in re.captures_iter(&variable.value) {
-            let referenced = format_regex_match(String::from(capture.get(0).unwrap().as_str()));
+            let referenced = normalize_regex_match(String::from(capture.get(0).unwrap().as_str()));
 
             // it's not a variable we know
             if !variables.contains_key(&referenced) {

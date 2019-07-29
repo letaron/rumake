@@ -18,12 +18,10 @@ pub fn expand_program_args(
     if program_args_has_rumake_args(&processed_args) {
         processed_args = expand_rumake_args_pass(processed_args, call_args);
         debug!("expand_rumake_args_pass: after {:?}", processed_args);
-    } else {
-        if is_mono_insruction_task {
-            debug!("  single instruction task, forwarding: {:?}", call_args);
-            &processed_args.append(&mut call_args.to_vec());
-            return processed_args;
-        }
+    } else if is_mono_insruction_task {
+        debug!("  single instruction task, forwarding: {:?}", call_args);
+        &processed_args.append(&mut call_args.to_vec());
+        return processed_args;
     }
 
     debug!("  processed_args: {:?}", call_args.len());

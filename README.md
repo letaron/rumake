@@ -1,6 +1,6 @@
 # RUMAKE
 
-`rumake` is a task runner written in Rust that tries to stay close to the sell. It doesn't attend to be a drop-in replacement for `make`.
+`rumake` is a task runner written in Rust that tries to stay close to the shell. It doesn't attend to be a drop-in replacement for `make`.
 
 Principal features are:
 - not-coupled to a runtime.

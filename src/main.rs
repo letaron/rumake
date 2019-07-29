@@ -70,7 +70,7 @@ fn main() {
     exec_task(&tasks, task_name, &calls_args, Vec::new(), &resolved_vars);
 }
 
-fn get_task_name(args: &Vec<String>) -> &String {
+fn get_task_name(args: &[String]) -> &String {
     if args.len() < 2 {
         panic!("You must provide an task name!");
     }

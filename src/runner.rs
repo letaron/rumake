@@ -62,9 +62,9 @@ pub fn exec_task(
 }
 
 fn run_instruction(
-    program: &String,
-    program_args: &Vec<String>,
-    call_args: &Vec<String>,
+    program: &str,
+    program_args: &[String],
+    call_args: &[String],
     variables: &HashMap<String, String>,
     is_single_insruction_task: bool,
 ) {
@@ -92,7 +92,7 @@ fn run_instruction(
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .output()
-        .expect(&format!("Command '{:?}' failed.", real_command));
+        .unwrap_or_else(|_| panic!("Command '{:?}' failed.", real_command));
 
     if !output.status.success() {
         match output.status.code() {

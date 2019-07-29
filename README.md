@@ -24,7 +24,7 @@ Let's say you have this configuration:
 # rumake.yaml
 dkcr: docker-compose run --rm
 
-hello: cowsay hello $from !
+hello: "echo 🐄: hello $from !"
 me:
   - "@hello"
   - echo "I\'m $USER and time is $(date)"
@@ -179,7 +179,7 @@ $bar: bar baz${foo}51 # computes to "bar bazfoo51"
 
 ## Shell completion
 
-Shell completion is supported for **Bash**, move `[fixtures/rumake-completion.bash]` to `$XDG_CONFIG_HOME/bash_completion` or `/etc/bash_completion.d/`, ie.
+Shell completion is supported for **Bash**, move [`fixtures/rumake-completion.bash`] to `$XDG_CONFIG_HOME/bash_completion` or `/etc/bash_completion.d/`, ie.
 ```bash
 cp fixtures/rumake-completion.bash ${XDG_CONFIG_HOME:-/etc/bash_completion.d/}/rumake
 ```

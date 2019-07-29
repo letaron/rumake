@@ -1,25 +1,27 @@
 #!/usr/bin/env bats
 
+RUMAKE=target/debug/rumake
+
 @test "echo foo" {
-  run rumake echo foo
+  run $RUMAKE echo foo
   [ "$status" -eq 0 ]
   [ "$output" = "foo" ]
 }
 
 @test "pizza" {
-  run rumake pizza cheese
+  run $RUMAKE pizza cheese
   [ "$status" -eq 0 ]
   [ "$output" = "Let's go for a pizza with cheese 🍕" ]
 }
 
 @test "pizza_super" {
-  run rumake pizza_super sauerkraut
+  run $RUMAKE pizza_super sauerkraut
   [ "$status" -eq 0 ]
   [ "$output" = "Let's go for a pizza with super sauerkraut 🍕" ]
 }
 
 @test "pizza_extra" {
-  run rumake pizza_extra enchilada
+  run $RUMAKE pizza_extra enchilada
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "hmmm..." ]
   [ "${lines[1]}" = "I love enchilada" ]
@@ -27,12 +29,12 @@
 }
 
 @test "fail" {
-  run rumake fail
+  run $RUMAKE fail
   [ "$status" -eq 101 ]
 }
 
 @test "non existent" {
-  run rumake foo-$RANDOM
+  run $RUMAKE foo-$RANDOM
   [ "$status" -eq 101 ]
 }
 

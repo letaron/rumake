@@ -32,9 +32,8 @@ pub fn get_doc() -> LinkedHashMap<Yaml, Yaml> {
         .expect(&format!("Cannot read {}", config));
 
     let docs = YamlLoader::load_from_str(&config_buffer).expect("Cannot parse config");
-    let doc = docs[0].clone().into_hash().unwrap();
 
-    doc
+    docs[0].clone().into_hash().unwrap()
 }
 
 pub fn yaml_element_as_string(value: &Yaml) -> String {

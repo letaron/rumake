@@ -1,5 +1,7 @@
 # RUMAKE
 
+[![Build Status](https://travis-ci.org/letaron/rumake.svg?branch=master)](https://travis-ci.org/letaron/rumake)
+
 `rumake` is a task runner written in Rust that tries to stay close to the shell. It doesn't attend to be a drop-in replacement for `make`.
 
 Principal features are:

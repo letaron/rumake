@@ -1,16 +1,23 @@
 mod arguments;
-mod parser;
+mod config;
 mod runner;
 mod variables;
 
 use runner::exec_task;
+use shellwords;
 use std::collections::HashMap;
 use std::env;
 
 #[derive(Debug)]
+pub struct Instruction {
+    program: String,
+    arguments: Vec<String>,
+}
+
+#[derive(Debug)]
 pub struct Task {
     name: String,
-    instructions: Vec<String>,
+    instructions: Vec<Instruction>,
 }
 
 #[derive(Debug, Clone)]
@@ -22,7 +29,7 @@ pub struct Variable {
 fn main() {
     pretty_env_logger::init();
 
-    let doc = parser::get_doc();
+    let doc = config::get_doc();
     let iter = doc.iter();
 
     let args: Vec<String> = env::args().collect();
@@ -42,19 +49,30 @@ fn main() {
                     name.to_string(),
                     Variable {
                         name,
-                        value: parser::yaml_element_as_string(value),
+                        value: config::yaml_element_as_string(value),
                     },
                 );
             }
             _ => {
-                let mut instructions: Vec<String>;
+                let mut instructions: Vec<Instruction> = Vec::new();
 
-                if value.as_str().is_some() {
-                    instructions = vec![value.clone().into_string().unwrap()];
-                } else if value.as_vec().is_some() {
-                    instructions = Vec::new();
-                    for line in value.as_vec().unwrap() {
-                        instructions.push(parser::yaml_element_as_string(line));
+                if let Some(line) = value.as_str() {
+                    let parts = shellwords::split(line).unwrap();
+                    let (program, arguments) = parts.split_at(1);
+                    let program = &program[0];
+                    instructions = vec![Instruction {
+                        program: program.to_string(),
+                        arguments: arguments.to_vec(),
+                    }];
+                } else if let Some(lines) = value.as_vec() {
+                    for line in lines {
+                        let parts = shellwords::split(line.as_str().unwrap()).unwrap();
+                        let (program, arguments) = parts.split_at(1);
+                        let program = &program[0];
+                        instructions.push(Instruction {
+                            program: program.to_string(),
+                            arguments: arguments.to_vec(),
+                        });
                     }
                 } else {
                     panic!("Task '{}' must be string or array of string.", name)

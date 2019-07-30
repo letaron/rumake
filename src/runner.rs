@@ -2,7 +2,6 @@ use crate::arguments::expand_program_args;
 use crate::Task;
 
 use log::{debug, info};
-use shellwords;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 
@@ -25,10 +24,7 @@ pub fn exec_task(
     }
 
     for instruction in &task.instructions {
-        let instructions_parts = shellwords::split(&instruction).unwrap();
-        let (program, program_args) = instructions_parts.split_at(1);
-        let program = &program[0];
-        let program_args = program_args.to_vec();
+        let program = instruction.program.to_string();
 
         // if command references another task, execute it
         if program.starts_with('@') {
@@ -38,8 +34,12 @@ pub fn exec_task(
             // remove the first char "@"
             let program = program.to_string().split_off(1);
 
-            debug!("  -> run dependency {} with {:?}", program, program_args);
-            let program_args = expand_program_args(&program_args, call_args, variables, false);
+            debug!(
+                "  -> run dependency {} with {:?}",
+                program, instruction.arguments
+            );
+            let program_args =
+                expand_program_args(&instruction.arguments, call_args, variables, false);
 
             exec_task(
                 tasks,
@@ -52,8 +52,8 @@ pub fn exec_task(
         }
 
         run_instruction(
-            program,
-            &program_args,
+            &program,
+            &instruction.arguments,
             &call_args,
             variables,
             task.instructions.len() == 1, // is_mono_insruction_task
@@ -62,7 +62,7 @@ pub fn exec_task(
 }
 
 fn run_instruction(
-    program: &str,
+    program: &String,
     program_args: &[String],
     call_args: &[String],
     variables: &HashMap<String, String>,

@@ -11,7 +11,7 @@ cache: cargo
 
 
 before_script:
-  - which rustfmt || cargo install rustfmt-nightly
+  - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION 
   - cp fixtures/example.yaml rumake.yaml
   - git clone https://github.com/sstephenson/bats.git $HOME/bats && cd $HOME/bats && sudo ./install.sh /usr/local && cd -
 

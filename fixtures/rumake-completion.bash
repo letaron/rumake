@@ -1,4 +1,5 @@
 #/usr/bin/env bash
+
 _rumake_completions()
 {
   if [ "${#COMP_WORDS[@]}" != "2" ]; then

@@ -69,9 +69,7 @@ fn expand_rumake_args_pass(args: Vec<String>, call_args: &[String]) -> Vec<Strin
     for value in args {
         debug!("    in {}", value);
         // normalize to $RUMAKE_ARGS before replacing
-        let value = value
-            .replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
-            .replace("$RUMAKE_ARGS", flattened_call_args);
+        let value = normalize_rumake_args(&value).replace("$RUMAKE_ARGS", flattened_call_args);
         debug!("      -> {}", value);
 
         processed_args.push(value)
@@ -82,12 +80,69 @@ fn expand_rumake_args_pass(args: Vec<String>, call_args: &[String]) -> Vec<Strin
     processed_args
 }
 
+fn normalize_rumake_args(raw: &String) -> String {
+    raw.replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
+}
+
 fn program_args_has_rumake_args(args: &[String]) -> bool {
     for arg in args {
-        if arg.find("$RUMAKE_ARGS").is_some() {
+        if normalize_rumake_args(arg).find("$RUMAKE_ARGS").is_some() {
             return true;
         }
     }
 
     false
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_normalize_rumake_args() {
+        assert_eq!(
+            normalize_rumake_args(&"foo bar".to_string()),
+            "foo bar".to_string()
+        );
+        assert_eq!(
+            normalize_rumake_args(&"bar ${RUMAKE_ARGS} baz".to_string()),
+            "bar $RUMAKE_ARGS baz".to_string()
+        );
+        assert_eq!(
+            normalize_rumake_args(&"bar $RUMAKE_ARGSbaz".to_string()),
+            "bar $RUMAKE_ARGSbaz".to_string()
+        );
+        assert_eq!(
+            normalize_rumake_args(&"bar ${RUMAKE_ARGS}baz".to_string()),
+            "bar $RUMAKE_ARGSbaz".to_string()
+        );
+    }
+
+    #[test]
+    fn program_args_has_rumake_args_true() {
+        assert_eq!(
+            program_args_has_rumake_args(&["foo".to_string(), "bar $RUMAKE_ARGS baz".to_string()]),
+            true
+        );
+        assert_eq!(
+            program_args_has_rumake_args(&[
+                "foo".to_string(),
+                "bar ${RUMAKE_ARGS} baz".to_string()
+            ]),
+            true
+        );
+        assert_eq!(
+            program_args_has_rumake_args(&["foo".to_string(), "bar${RUMAKE_ARGS}baz".to_string()]),
+            true
+        );
+    }
+
+    #[test]
+    fn program_args_has_rumake_args_false() {
+        assert_eq!(
+            program_args_has_rumake_args(&["foo".to_string(), "bar".to_string()]),
+            false
+        );
+    }
 }

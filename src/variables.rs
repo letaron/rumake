@@ -12,7 +12,7 @@ pub fn resolve(variables: &HashMap<String, Variable>) -> HashMap<String, String>
     }
 
     for name in variables.keys() {
-        values.insert(name.to_string(), get_value(&name, variables, &references));
+        values.insert(name.to_string(), compute_value(&name, variables, &references));
     }
 
     values
@@ -22,12 +22,12 @@ fn format_regex_match(name: String) -> String {
     name.replace('{', "").replace('}', "")
 }
 
-fn get_value(
+fn compute_value(
     name: &String,
     variables: &HashMap<String, Variable>,
     references: &HashMap<&String, Vec<String>>,
 ) -> String {
-    debug!("get variable value {}", name);
+    debug!("compute value for variable {}", name);
 
     let value = variables.get(name).unwrap().value.to_string();
 
@@ -38,7 +38,7 @@ fn get_value(
 
     let mut value = value;
     for referenced in references.get(name).unwrap() {
-        let referenced_value = String::from(get_value(referenced, variables, references).as_str());
+        let referenced_value = String::from(compute_value(referenced, variables, references).as_str());
         debug!("  replace {} by {}", referenced, referenced_value);
         value = value.replace(referenced, &referenced_value)
     }

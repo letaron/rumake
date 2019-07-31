@@ -79,15 +79,14 @@ With arguments forwarding, no need to repeat a target for a small difference, yo
 
 If the task consist of a simple intruction, CLI args are appened to the end.
 
-With this configuration
+With this configuration:
 ```yaml
 dkcr: docker-compose run --rm
 ```
 
-will be used like that
+will be used like that:
 ```bash
-# will run docker-compose run --rm node bash
-rumake dkcr node bash
+rumake dkcr node bash # will run docker-compose run --rm node bash
 ```
 
 When the task has multiple instructions, you need to place the arguments. It allow more use cases, please see below.
@@ -96,14 +95,14 @@ When the task has multiple instructions, you need to place the arguments. It all
 
 `rumake` replace the special arguments `$RUMAKE_ARGS` by CLI args.
 
-With this configuration
+With this configuration:
 ```yaml
 shell: docker-compose run $RUMAKE_ARGS bash
 ```
 
-will be used like that
+will be used like that:
 ```bash
-rumake dkcr shell node
+rumake dkcr shell node # will run docker-compose run node bash
 ```
 
 And when referencing, it's the same principle:
@@ -111,16 +110,15 @@ And when referencing, it's the same principle:
 pizza: echo \"Let\'s go for a pizza with $RUMAKE_ARGS 🍕\"
 pizza_super: "@pizza super $RUMAKE_ARGS"
 pizza_extra:
-  - echo hmmm...
-  - echo I love $RUMAKE_ARGS
+  - ["echo hmmm...", "echo I love $RUMAKE_ARGS"]
   - "@pizza_super extra $RUMAKE_ARGS !"
 ```
 
 You use it like this
 ```bash
-rumake pizza cheese # Let's go for a pizza with cheese ! 🍕
+rumake pizza cheese # will output: Let's go for a pizza with cheese ! 🍕
 
-rumake pizza_extra cheese
+rumake pizza_extra cheese # will output:
 # hmmm...
 # I love cheese
 # Let's go for a pizza with super extra cheese ! 🍕
@@ -153,8 +151,9 @@ Priority for loading (no merging is done):
 ### Task definition
 
 - Task name is any value not begining with a `$`.
-- Task contains either an array of string or a string (the instruction).
-- In case of task is only a string, CLI args are forwarded.
+- Task are made of instruction(s).
+- Instructionss are either an array of string or a string.
+- In case of instruction is only a string, CLI args are forwarded.
 - A task can reference another task by prefixing it's name with `@`.
 
 ```yaml
@@ -162,7 +161,8 @@ task1: instruction1
 
 task2:
   - instruction1
-  - instruction2
+  - instruction2 $foo
+  - ["@task1 with param", "instruction3"]
   - for file in $(ls); do
       echo $file;
     done

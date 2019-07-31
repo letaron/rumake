@@ -7,6 +7,7 @@ use runner::exec_task;
 use shellwords;
 use std::collections::HashMap;
 use std::env;
+use yaml_rust::Yaml;
 
 #[derive(Debug)]
 pub struct Instruction {
@@ -29,9 +30,6 @@ pub struct Variable {
 fn main() {
     pretty_env_logger::init();
 
-    let doc = config::get_doc();
-    let iter = doc.iter();
-
     let args: Vec<String> = env::args().collect();
     let task_name = get_task_name(&args);
     let calls_args = get_calls_args(&args);
@@ -39,47 +37,25 @@ fn main() {
     let mut tasks: HashMap<String, Task> = HashMap::new();
     let mut variables: HashMap<String, Variable> = HashMap::new();
 
-    for (key, value) in iter {
-        let name = String::from(key.as_str().unwrap());
+    for (name, value) in config::get_doc().iter() {
+        let name = String::from(name.as_str().unwrap());
 
-        let first_letter = name.chars().next().unwrap();
-        match first_letter {
-            '$' => {
-                variables.insert(
-                    name.to_string(),
-                    Variable {
-                        name,
-                        value: config::yaml_element_as_string(value),
-                    },
-                );
-            }
-            _ => {
-                let mut instructions: Vec<Instruction> = Vec::new();
-
-                if let Some(line) = value.as_str() {
-                    let parts = shellwords::split(line).unwrap();
-                    let (program, arguments) = parts.split_at(1);
-                    let program = &program[0];
-                    instructions = vec![Instruction {
-                        program: program.to_string(),
-                        arguments: arguments.to_vec(),
-                    }];
-                } else if let Some(lines) = value.as_vec() {
-                    for line in lines {
-                        let parts = shellwords::split(line.as_str().unwrap()).unwrap();
-                        let (program, arguments) = parts.split_at(1);
-                        let program = &program[0];
-                        instructions.push(Instruction {
-                            program: program.to_string(),
-                            arguments: arguments.to_vec(),
-                        });
-                    }
-                } else {
-                    panic!("Task '{}' must be string or array of string.", name)
-                }
-
-                tasks.insert(name.to_string(), Task { name, instructions });
-            }
+        if name.starts_with('$') {
+            variables.insert(
+                name.to_string(),
+                Variable {
+                    name,
+                    value: config::yaml_element_as_string(value),
+                },
+            );
+        } else {
+            tasks.insert(
+                name.to_string(),
+                Task {
+                    instructions: extract_instructions(&name, &value, true),
+                    name,
+                },
+            );
         }
     }
 
@@ -88,9 +64,62 @@ fn main() {
     exec_task(&tasks, task_name, &calls_args, Vec::new(), &resolved_vars);
 }
 
+fn create_instruction(line: &str) -> Instruction {
+    let parts = shellwords::split(line).unwrap();
+    let (program, arguments) = parts.split_at(1);
+    let program = &program[0];
+
+    Instruction {
+        program: program.to_string(),
+        arguments: arguments.to_vec(),
+    }
+}
+
+/// Extracts instructions for a taks.
+/// If instruction is an array, we walk through it on only 1 depth level.
+/// This is correct:
+/// ```yaml
+/// task:
+///   - echo foo
+///   - ["echo bar", "echo baz"]
+/// ```
+/// This is incorrect:
+/// ```yaml
+/// task:
+///   - echo foo
+///   - ["echo bar", ["echo baz", "echo goo"]]
+/// ```
+fn extract_instructions(name: &str, value: &Yaml, is_first_depth_level: bool) -> Vec<Instruction> {
+    // early return for simple string
+    if let Some(line) = value.as_str() {
+        return vec![create_instruction(&line)];
+    }
+
+    let mut instructions: Vec<Instruction> = Vec::new();
+
+    if let Some(lines) = value.as_vec() {
+        for line in lines {
+            if line.as_vec().is_some() && is_first_depth_level == true {
+                instructions.append(&mut extract_instructions(&name, line, false));
+            } else if let Some(line) = line.as_str() {
+                instructions.push(create_instruction(line));
+            } else {
+                panic!(
+                    "Instructions for task '{}' must be a string or an array of string.",
+                    name
+                );
+            }
+        }
+    } else {
+        panic!("Task '{}' must be string or an array of string.", name);
+    }
+
+    instructions
+}
+
 fn get_task_name(args: &[String]) -> &String {
     if args.len() < 2 {
-        panic!("You must provide an task name!");
+        panic!("Not task provided, exiting.");
     }
 
     &args[1]

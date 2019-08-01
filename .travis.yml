@@ -23,8 +23,9 @@ script:
   - tests/tasks.sh
 
 env:
-  - PROJECT_NAME=rumake
-  - TARGET=x86_64-unknown-linux-gnu
+  global:
+    - PROJECT_NAME=rumake
+    - TARGET=x86_64-unknown-linux-gnu
 
 before_deploy:
   - mkdir releases

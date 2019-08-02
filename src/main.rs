@@ -28,7 +28,7 @@ pub struct Variable {
 }
 
 fn main() {
-    pretty_env_logger::init();
+    simple_logger::init().unwrap();
 
     let args: Vec<String> = env::args().collect();
     let task_name = get_task_name(&args);

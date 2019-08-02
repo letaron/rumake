@@ -99,7 +99,7 @@ fn extract_instructions(name: &str, value: &Yaml, is_first_depth_level: bool) ->
 
     if let Some(lines) = value.as_vec() {
         for line in lines {
-            if line.as_vec().is_some() && is_first_depth_level == true {
+            if line.as_vec().is_some() && is_first_depth_level {
                 instructions.append(&mut extract_instructions(&name, line, false));
             } else if let Some(line) = line.as_str() {
                 instructions.push(create_instruction(line));
@@ -157,8 +157,15 @@ mod tests {
     }
 
     #[test]
-    fn test_get_task_name() {
+    fn test_get_task_name_success() {
         let args = vec!["rumake".to_string(), "task".to_string()];
         assert_eq!(get_task_name(&args), &args[1]);
+    }
+
+     #[test]
+    fn test_create_instruction() {
+        let instruction = create_instruction("command arg1 --arg2 value");
+        assert_eq!(instruction.program, "command");
+        assert_eq!(instruction.arguments, vec!["arg1".to_string(), "--arg2".to_string(), "value".to_string()]);
     }
 }

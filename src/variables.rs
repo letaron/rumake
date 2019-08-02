@@ -98,7 +98,7 @@ fn check_cyclic_dependencies(
     let referenceds = references.get(checked).unwrap();
 
     debug!(
-        "check_cyclic_dependencies {} / {:?} / {:?}",
+        "check_cyclic_dependencies: checked: {}, original: {:?}, references {:?}",
         checked, original, referenceds
     );
 
@@ -107,10 +107,10 @@ fn check_cyclic_dependencies(
     }
 
     for referenced in referenceds {
-        debug!("  check {}", referenced);
+        debug!("  checking referenced: {}", referenced);
 
         if references.contains_key(&referenced) {
-            debug!("    -> check_cyclic_dependencies {}", referenced);
+            debug!("    -> check_cyclic_dependencies");
             check_cyclic_dependencies(referenced, original, references);
         } else {
             debug!("    valid {}", referenced);

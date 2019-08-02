@@ -162,10 +162,17 @@ mod tests {
         assert_eq!(get_task_name(&args), &args[1]);
     }
 
-     #[test]
+    #[test]
     fn test_create_instruction() {
         let instruction = create_instruction("command arg1 --arg2 value");
         assert_eq!(instruction.program, "command");
-        assert_eq!(instruction.arguments, vec!["arg1".to_string(), "--arg2".to_string(), "value".to_string()]);
+        assert_eq!(
+            instruction.arguments,
+            vec![
+                "arg1".to_string(),
+                "--arg2".to_string(),
+                "value".to_string()
+            ]
+        );
     }
 }

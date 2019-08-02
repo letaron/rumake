@@ -32,7 +32,6 @@ fn replace_known_variables(
     program_args: &[String],
     variables: &HashMap<String, String>,
 ) -> Vec<String> {
-
     debug!("  replace_known_variables");
 
     let mut processed_args: Vec<String> = Vec::new();
@@ -90,7 +89,6 @@ fn program_args_has_rumake_args(args: &[String]) -> bool {
 
 #[cfg(test)]
 mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
     #[test]

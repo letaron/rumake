@@ -19,7 +19,8 @@ before_script:
 script:
   - cargo check
   - cargo fmt --all -- --check
-  - bin/test.sh
+  - cargo test
+  - tests/smoke.sh
   - tests/tasks.sh
 
 env:

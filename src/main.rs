@@ -129,3 +129,36 @@ fn get_task_name(args: &[String]) -> &String {
 fn get_calls_args(args: &Vec<String>) -> Vec<String> {
     args.clone().split_off(2)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_calls_args() {
+        assert_eq!(
+            get_calls_args(&vec!["rumake".to_string(), "task".to_string()]).len(),
+            0
+        );
+
+        let args = get_calls_args(&vec![
+            "rumake".to_string(),
+            "task".to_string(),
+            "param".to_string(),
+        ]);
+        assert_eq!(args[0], "param");
+        assert_eq!(args.len(), 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_get_task_name_panic() {
+        get_task_name(&vec!["rumake".to_string()]);
+    }
+
+    #[test]
+    fn test_get_task_name() {
+        let args = vec!["rumake".to_string(), "task".to_string()];
+        assert_eq!(get_task_name(&args), &args[1]);
+    }
+}

@@ -52,3 +52,44 @@ pub fn yaml_element_as_string(value: &Yaml) -> String {
 
     string
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_yaml_element_as_string_string() {
+        let s = "foo";
+        let docs = YamlLoader::load_from_str(s).unwrap();
+        assert_eq!(yaml_element_as_string(&docs[0]), "foo");
+    }
+
+    #[test]
+    fn test_yaml_element_as_string_integer() {
+        let s = "123";
+        let docs = YamlLoader::load_from_str(s).unwrap();
+        assert_eq!(yaml_element_as_string(&docs[0]), "123");
+    }
+
+    #[test]
+    fn test_yaml_element_as_string_float() {
+        let s = "13.37";
+        let docs = YamlLoader::load_from_str(s).unwrap();
+        assert_eq!(yaml_element_as_string(&docs[0]), "13.37");
+    }
+
+    #[test]
+    fn test_yaml_element_as_string_bool() {
+        let s = "true";
+        let docs = YamlLoader::load_from_str(s).unwrap();
+        assert_eq!(yaml_element_as_string(&docs[0]), "true");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_yaml_element_as_string_null_panic() {
+        let s = "~";
+        let docs = YamlLoader::load_from_str(s).unwrap();
+        yaml_element_as_string(&docs[0]);
+    }
+}

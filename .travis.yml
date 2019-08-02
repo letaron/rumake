@@ -6,15 +6,17 @@ rust:
   - beta
   - nightly
 
+matrix:
+  fast_finish: true
+  allow_failures:
+    - rust: nightly
 
 cache: cargo
 
-
 before_script:
-  # - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION 
+  - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION 
   - cp fixtures/example.yaml rumake.yaml
   - git clone https://github.com/sstephenson/bats.git $HOME/bats && cd $HOME/bats && sudo ./install.sh /usr/local && cd -
-
 
 script:
   - cargo check
@@ -40,6 +42,6 @@ deploy:
     secure: yIJ6jiYwjCjk3lVUIOeZcrcDTsjv+8suK/bpqRPW0lKDMtw8m89OJFNchIxY0eMmJ12HQDT0PuYafCOHV/HcJrDcepY8vyq0LSpgKrXv7pqmIHxRS0BQUfmJnIMRJKwyakwidtp5+tnlMMmtdJM5S1X+XVOmWMSFgw2nmm1s/viJ0/1FG0iR6XGhPeKUKoHtOMsQVQjR7j6iSjnnXvwHJVlAd/TdU15oBjGbi2hydjB3i1nO0cFozcqoKX2scu3E/gszR2HRnykv0Zu5KaKft7GOpF27ZA5bzsXRHKrCEbmFJ1+2zsG0/ube7aUj+TXOamYoFimgiIxXNxeNd6MSSxlh+bPnJBQskBt6VxZFM/EfHYEB+b30TiHAUkOFK4Wq1gZxvXZ+xIujn9M7ajImAN4F1zBQ8V3vsYqRpDvi3wSdfnUTPtQ0yZp+szJDQhZEkJRzp+ApbzPxuehsCxV6fnhnDqVZ/9sNB3PEzU+iG4cG7AO3T+ypx2AzwMWXWb3yaSO+5cVAmSbeBpRsl15agIjT/2YQ9hZQ+mVW/MiPYbV1WAYSul+nNIUWE0t/b8g/p0JBpv54IZggnStwYj6MXonlgFOb2MoWlGzsY221DSzZ6nGUo4uzSZi7Twhsm36y8du+3HUun9Ns9iBgng6s1SyqXsjAdSmm5uhRDEF9BUA=
   file: releases/${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.tar.gz
   on:
-    condition: $TRAVIS_RUST_VERSION = nightly
+    condition: $TRAVIS_RUST_VERSION = stable
     tags: true
   skip_cleanup: true

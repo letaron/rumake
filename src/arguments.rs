@@ -73,7 +73,7 @@ fn replace_rumake_args(args: Vec<String>, call_args: &[String]) -> Vec<String> {
     processed_args
 }
 
-fn normalize_rumake_args(raw: &String) -> String {
+fn normalize_rumake_args(raw: &str) -> String {
     raw.replace("${RUMAKE_ARGS}", "$RUMAKE_ARGS")
 }
 

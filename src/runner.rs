@@ -62,7 +62,7 @@ pub fn exec_task(
 }
 
 fn run_instruction(
-    program: &String,
+    program: &str,
     program_args: &[String],
     call_args: &[String],
     variables: &HashMap<String, String>,

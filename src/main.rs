@@ -126,8 +126,9 @@ fn get_task_name(args: &[String]) -> &String {
 }
 
 // todo seggregate rustake args from task args (ie. [rumake args] -- [task args])
-fn get_calls_args(args: &Vec<String>) -> Vec<String> {
-    args.clone().split_off(2)
+fn get_calls_args(args: &[String]) -> Vec<String> {
+    let (_, call_args) = args.split_at(2);
+    call_args.to_vec()
 }
 
 #[cfg(test)]
@@ -137,11 +138,11 @@ mod tests {
     #[test]
     fn test_get_calls_args() {
         assert_eq!(
-            get_calls_args(&vec!["rumake".to_string(), "task".to_string()]).len(),
+            get_calls_args(&["rumake".to_string(), "task".to_string()]).len(),
             0
         );
 
-        let args = get_calls_args(&vec![
+        let args = get_calls_args(&[
             "rumake".to_string(),
             "task".to_string(),
             "param".to_string(),
@@ -153,12 +154,12 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_get_task_name_panic() {
-        get_task_name(&vec!["rumake".to_string()]);
+        get_task_name(&["rumake".to_string()]);
     }
 
     #[test]
     fn test_get_task_name_success() {
-        let args = vec!["rumake".to_string(), "task".to_string()];
+        let args = ["rumake".to_string(), "task".to_string()];
         assert_eq!(get_task_name(&args), &args[1]);
     }
 
@@ -168,7 +169,7 @@ mod tests {
         assert_eq!(instruction.program, "command");
         assert_eq!(
             instruction.arguments,
-            vec![
+            [
                 "arg1".to_string(),
                 "--arg2".to_string(),
                 "value".to_string()

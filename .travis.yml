@@ -14,12 +14,14 @@ matrix:
 cache: cargo
 
 before_script:
-  - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION 
+  - rustup component add rustfmt --toolchain=$TRAVIS_RUST_VERSION || cargo install --git https://github.com/rust-lang/rustfmt/ --force rustfmt
+  - rustup component add clippy --toolchain=$TRAVIS_RUST_VERSION || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
   - cp fixtures/example.yaml rumake.yaml
 
 script:
   - cargo check
   - cargo fmt --all -- --check
+  - cargo clippy --all-features
   - cargo test
   - tests/smoke.sh
 
